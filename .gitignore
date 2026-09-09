@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
+node_modules/
+.DS_Store
+.env*
+!.env.example
+test-results/
+playwright-report/
+.auto-test/
+site/.pi-project.json

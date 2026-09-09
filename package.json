@@ -1,0 +1,17 @@
+{
+  "name": "auto-local-site-and-adapters",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "build:site": "node scripts/build-site.mjs",
+    "test:site": "playwright test"
+  },
+  "devDependencies": {
+    "@fontsource-variable/manrope": "5.3.0",
+    "@fontsource/instrument-serif": "5.3.0",
+    "@playwright/test": "1.63.0",
+    "sharp": "0.35.4"
+  }
+}

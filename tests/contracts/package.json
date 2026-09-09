@@ -1,0 +1,10 @@
+{
+  "name": "auto-agent-contracts",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@earendil-works/pi-coding-agent": "0.85.1",
+    "@opencode-ai/plugin": "1.18.30",
+    "typescript": "5.9.3"
+  }
+}

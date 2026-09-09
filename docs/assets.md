@@ -1,0 +1,9 @@
+# Asset provenance
+
+`site/assets/mountain.png` was generated with OpenAI ImageGen for this project on 2026-09-09. Generation mode: text-to-image. Actual output: 1672×941 PNG. The requested 4K size was not the generated size; no 4K-resolution claim is made. WebP encodings and the 900-pixel responsive version are produced by `scripts/build-site.mjs`.
+
+Prompt:
+
+> Use case: photorealistic-natural. Asset type: full-bleed background for the landing page of Auto, an elegant open-source local AI tool-permission classifier. Create a stunning, extraordinarily detailed, realistic alpine mountain photograph at first light. A monumental sharp snow-covered mountain massif with delicate geological detail, blue shadowed glaciers and rocky ridgelines, glowing warm pale sunlight on the summit, multiple layers of distant mountains and a sea of low mist. Panoramic 16:9, preferably 3840x2160. The mountain is dominant in the center-right with calm dark blue sky and mist extending to the left for white website typography. Deep natural midnight/slate blues, silver snow, subtle warm sunlight. Cinematic atmosphere with photographic restraint, crisp rich detail, grand scale and beautiful natural light. Edge-to-edge image, no border, no text, no lettering, no logo, no people, no buildings, no UI. Designed to remain beautiful when cropped on mobile. This is the actual hero photograph asset, not a website mockup.
+
+Typography: Manrope variable and Instrument Serif italic, sourced through their Fontsource npm packages. Both are distributed under the SIL Open Font License; copies are included beside the built font files in `site/assets/`. These retain their original licenses. The Auto mark is a project-created SVG. Project code is Apache-2.0; the generated mountain asset is included for reuse with this project, subject to applicable law concerning generated works.
