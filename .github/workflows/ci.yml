@@ -95,6 +95,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
+      - run: npm run format:check
       - run: npm run build:site
       - name: Built installers match reviewed sources
         run: diff scripts/install.py site/install.py && diff scripts/install.sh site/install.sh && diff scripts/install.ps1 site/install.ps1

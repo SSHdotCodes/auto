@@ -76,6 +76,7 @@ def main():
         "--source", default=f"https://github.com/SSHDotCodes/auto/archive/refs/tags/v{VERSION}.zip"
     )
     parser.add_argument("--no-start", action="store_true")
+    parser.add_argument("--no-path", action="store_true", help="Do not create a user CLI symlink")
     parser.add_argument(
         "--plan", action="store_true", help="Print the installation plan without changing files"
     )
@@ -134,7 +135,7 @@ def main():
         command += ["--no-start"]
     subprocess.run(command, check=True)
     executable = env / ("Scripts/auto.exe" if os.name == "nt" else "bin/auto")
-    if os.name != "nt":
+    if os.name != "nt" and not args.no_path:
         bin_dir = Path.home() / ".local/bin"
         bin_dir.mkdir(parents=True, exist_ok=True)
         link = bin_dir / "auto"
