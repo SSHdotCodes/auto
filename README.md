@@ -62,7 +62,7 @@ auto configure --max-tokens 32768   # opt into a larger context budget
 auto uninstall pi                   # remove adapter; retain downloaded model
 ```
 
-The default device is `auto`: usable CUDA/ROCm, then Apple MPS, then CPU. GPU initialization and kernel failures fall back to CPU where possible. `auto doctor` reports the device actually used. No FlashAttention compilation is required: the default backend computes exact local/global attention in bounded query blocks. Optional `pip install 'auto-local[flash]'` enables `auto configure --attention flash` on compatible NVIDIA systems.
+The default device is `auto`: usable CUDA/ROCm, then Apple MPS, then CPU. GPU initialization and kernel failures fall back to CPU where possible. `auto doctor` reports the device actually used. No FlashAttention compilation is required: the default backend computes exact local/global attention in bounded query blocks. For optional FlashAttention, install this repository with its `flash` extra in the same Python environment, then run `auto configure --attention flash` on a compatible NVIDIA system.
 
 The model supports 65,536 tokens. The runtime defaults to an **8,192-token interactive budget**; increase it up to 65,536 according to memory and latency requirements. Longer inputs request review, **without truncating away instructions or evidence**. Long-context inference on CPU can be very slow. There is no claim that all GPU generations have the same speed or numerical behavior.
 
