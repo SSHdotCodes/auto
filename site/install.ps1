@@ -1,6 +1,7 @@
 param(
     [ValidateSet('pi','opencode','hermes','all')][string]$Agent = 'pi',
-    [ValidateSet('auto','cpu','cuda','cuda12','cuda-legacy','rocm')][string]$Backend = 'auto'
+    [ValidateSet('auto','cpu','cuda','cuda12','cuda-legacy','rocm')][string]$Backend = 'auto',
+    [ValidateSet('','auto-0.4b-2','auto-200m-2')][string]$Model = ''
 )
 $ErrorActionPreference = 'Stop'
 if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {
@@ -14,7 +15,9 @@ $AutoPython = (& uv python find 3.13).Trim()
 $AutoScript = Join-Path ([System.IO.Path]::GetTempPath()) ([System.IO.Path]::GetRandomFileName() + '.py')
 try {
     Invoke-WebRequest https://auto.ssh.codes/install.py -OutFile $AutoScript
-    & $AutoPython $AutoScript --agent $Agent --backend $Backend
+    $ModelArgs = @()
+    if ($Model) { $ModelArgs = @('--model', $Model) }
+    & $AutoPython $AutoScript --agent $Agent --backend $Backend @ModelArgs
     if ($LASTEXITCODE -ne 0) { throw 'Auto installation failed. See the message above.' }
 } finally {
     Remove-Item $AutoScript -ErrorAction SilentlyContinue

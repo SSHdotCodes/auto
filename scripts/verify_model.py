@@ -7,13 +7,13 @@ import statistics
 import time
 from pathlib import Path
 
-from auto_gate.config import Settings
+from auto_gate.config import DEFAULT_MODEL, MODELS, Settings
 from auto_gate.model import Classifier, download
 from auto_gate.schema import ScoreRequest
 
 
-def verify(device, limit=24):
-    settings = Settings(device=device)
+def verify(device, limit=24, model=DEFAULT_MODEL):
+    settings = Settings(device=device, model=model)
     download(settings)
     started = time.perf_counter()
     model = Classifier(settings)
@@ -67,9 +67,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--device", default="cpu", choices=["cpu", "mps", "cuda"])
     parser.add_argument("--limit", type=int, default=24)
+    parser.add_argument("--model", default=DEFAULT_MODEL, choices=list(MODELS))
     parser.add_argument("--output", required=True)
     args = parser.parse_args()
-    report = verify(args.device, args.limit)
+    report = verify(args.device, args.limit, args.model)
     Path(args.output).write_text(json.dumps(report, indent=2) + "\n")
     print(json.dumps({key: value for key, value in report.items() if key != "results"}, indent=2))
     if report["passed"] != report["total"]:

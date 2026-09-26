@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "auto-local"
-version = "0.1.0"
+version = "0.2.0"
 description = "Local tool-call decisions for coding agents. Your context stays on your computer."
 readme = "README.md"
 requires-python = ">=3.10,<3.14"
@@ -17,8 +17,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8,<10", "ruff>=0.12,<1", "build>=1,<2"]
-flash = ["kernels>=0.16,<1"]
+dev = ["pytest>=8,<10", "ruff>=0.12,<1", "build>=1,<2", "psutil>=5,<8"]
+# Transformers 5.16.1 accepts only kernels 0.16.x for hub attention kernels.
+flash = ["kernels>=0.16,<0.17"]
 
 [project.scripts]
 auto = "auto_gate.cli:main"

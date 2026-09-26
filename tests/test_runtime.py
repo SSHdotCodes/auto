@@ -65,9 +65,27 @@ def test_config_rejects_unsafe_or_invalid_limits():
         {"max_tokens": 65537},
         {"threshold": 0},
         {"timeout": float("nan")},
+        {"model": "someone/unverified-model"},
     ]:
         with pytest.raises(ValueError):
             Settings(**kwargs)
+
+
+def test_v010_config_file_still_loads(tmp_path, monkeypatch):
+    monkeypatch.setenv("AUTO_HOME", str(tmp_path))
+    old = {
+        "device": "cpu",
+        "attention": "chunked",
+        "max_tokens": 8192,
+        "threshold": 0.5,
+        "timeout": 120.0,
+        "model_id": "ProCreations/auto-0.4b-2",
+        "revision": "456e153dad2b12db14babb1dbdc8f8ece607e80a",
+    }
+    (tmp_path / "config.json").write_text(json.dumps(old))
+    settings = Settings.load()
+    assert (settings.model, settings.max_tokens, settings.device) == ("auto-0.4b-2", 32768, "cpu")
+    assert settings.model_id == "ProCreations/auto-0.4b-2"
 
 
 def test_bridge_malformed_json_produces_review(tmp_path, monkeypatch):
