@@ -11,7 +11,7 @@ import sys
 import venv
 from pathlib import Path
 
-VERSION = "0.1.0"
+VERSION = "0.2.0"
 BUILDS = {
     "cpu": ("2.13.0", "https://download.pytorch.org/whl/cpu"),
     "mps": ("2.13.0", None),
@@ -73,6 +73,9 @@ def main():
     parser.add_argument("--agent", choices=["pi", "opencode", "hermes", "all"], default="pi")
     parser.add_argument("--backend", choices=["auto", *BUILDS], default="auto")
     parser.add_argument(
+        "--model", choices=["auto-0.4b-2", "auto-200m-2"], help="Auto model (default: auto-0.4b-2)"
+    )
+    parser.add_argument(
         "--source", default=f"https://github.com/SSHDotCodes/auto/archive/refs/tags/v{VERSION}.zip"
     )
     parser.add_argument("--no-start", action="store_true")
@@ -88,7 +91,13 @@ def main():
     if args.plan:
         print(
             json.dumps(
-                {"directory": str(root), "backend": backend, "torch": BUILDS[backend], "agent": args.agent}
+                {
+                    "directory": str(root),
+                    "backend": backend,
+                    "torch": BUILDS[backend],
+                    "agent": args.agent,
+                    "model": args.model or "auto-0.4b-2",
+                }
             )
         )
         return
@@ -131,6 +140,8 @@ def main():
     constraint.write_text("torch==" + version + "\n")
     subprocess.run([*pip, "--constraint", str(constraint), args.source], check=True)
     command = [str(python), "-m", "auto_gate", "install", args.agent]
+    if args.model:
+        command += ["--model", args.model]
     if args.no_start:
         command += ["--no-start"]
     subprocess.run(command, check=True)

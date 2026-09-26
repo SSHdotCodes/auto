@@ -1,0 +1,204 @@
+{
+  "machine": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+  "torch": "2.13.0+cu130",
+  "benchmark": "ProCreations/approve-or-deny revision a38b6259, 3,000 items, full input lengths",
+  "method": "Each item alone and unpadded through Auto's portable attention (BF16), compared with the model's published FlashAttention predictions (batched BF16). 'memory' rows: peak CUDA memory above the weights for one synthetic request; 'fused kernels disabled' exercises the query-block path (SDPA may still pick a fused kernel per block; see rtx-pro-6000-cuda-math-only.json for the math-kernel-only case); 'sdpa' is stock Transformers attention without FlashAttention.",
+  "models": {
+    "auto-0.4b-2 (revision 456e153d, pinned by Auto)": {
+      "benchmark": {
+        "n": 3000,
+        "seconds": 119.37276935577393,
+        "chunked_correct": 2902,
+        "reference_correct": 2903,
+        "decision_agreement": 0.9983333333333333,
+        "decisions_differing": 5,
+        "max_abs_p_deny_difference": 0.10340088700081401,
+        "median_abs_logit_difference": 0.03125,
+        "long_16k_64k": {
+          "n": 239,
+          "chunked_correct": 226,
+          "reference_correct": 226
+        },
+        "revision": "456e153dad2b12db14babb1dbdc8f8ece607e80a"
+      }
+    },
+    "auto-0.4b-2 iteration 1 (revision 5937dd01)": {
+      "benchmark": {
+        "n": 3000,
+        "seconds": 120.07569718360901,
+        "chunked_correct": 2910,
+        "reference_correct": 2910,
+        "decision_agreement": 1.0,
+        "decisions_differing": 0,
+        "max_abs_p_deny_difference": 0.07619690962176628,
+        "median_abs_logit_difference": 0.015625,
+        "long_16k_64k": {
+          "n": 239,
+          "chunked_correct": 229,
+          "reference_correct": 229
+        }
+      },
+      "memory": [
+        {
+          "impl": "auto_chunked",
+          "tokens": 8192,
+          "seconds": 0.047,
+          "peak_over_weights_gb": 0.227,
+          "finite": true
+        },
+        {
+          "impl": "auto_chunked (fused kernels disabled)",
+          "tokens": 8192,
+          "seconds": 0.049,
+          "peak_over_weights_gb": 0.227,
+          "finite": true
+        },
+        {
+          "impl": "auto_chunked",
+          "tokens": 16384,
+          "seconds": 0.117,
+          "peak_over_weights_gb": 0.446,
+          "finite": true
+        },
+        {
+          "impl": "auto_chunked (fused kernels disabled)",
+          "tokens": 16384,
+          "seconds": 0.127,
+          "peak_over_weights_gb": 0.446,
+          "finite": true
+        },
+        {
+          "impl": "auto_chunked",
+          "tokens": 32768,
+          "seconds": 0.316,
+          "peak_over_weights_gb": 0.891,
+          "finite": true
+        },
+        {
+          "impl": "auto_chunked (fused kernels disabled)",
+          "tokens": 32768,
+          "seconds": 0.374,
+          "peak_over_weights_gb": 0.891,
+          "finite": true
+        },
+        {
+          "impl": "auto_chunked",
+          "tokens": 65536,
+          "seconds": 0.899,
+          "peak_over_weights_gb": 1.782,
+          "finite": true
+        },
+        {
+          "impl": "auto_chunked (fused kernels disabled)",
+          "tokens": 65536,
+          "seconds": 1.185,
+          "peak_over_weights_gb": 1.782,
+          "finite": true
+        },
+        {
+          "impl": "sdpa",
+          "tokens": 8192,
+          "seconds": 0.082,
+          "peak_over_weights_gb": 1.016,
+          "finite": true
+        },
+        {
+          "impl": "sdpa",
+          "tokens": 16384,
+          "seconds": 0.274,
+          "peak_over_weights_gb": 4.032,
+          "finite": true
+        }
+      ]
+    },
+    "auto-200m-2 (revision 0bbb929f)": {
+      "benchmark": {
+        "n": 3000,
+        "seconds": 68.56853675842285,
+        "chunked_correct": 2889,
+        "reference_correct": 2890,
+        "decision_agreement": 0.999,
+        "decisions_differing": 3,
+        "max_abs_p_deny_difference": 0.08560132030406642,
+        "median_abs_logit_difference": 0.0,
+        "long_16k_64k": {
+          "n": 239,
+          "chunked_correct": 225,
+          "reference_correct": 225
+        }
+      },
+      "memory": [
+        {
+          "impl": "auto_chunked",
+          "tokens": 8192,
+          "seconds": 0.026,
+          "peak_over_weights_gb": 0.168,
+          "finite": true
+        },
+        {
+          "impl": "auto_chunked (fused kernels disabled)",
+          "tokens": 8192,
+          "seconds": 0.027,
+          "peak_over_weights_gb": 0.168,
+          "finite": true
+        },
+        {
+          "impl": "auto_chunked",
+          "tokens": 16384,
+          "seconds": 0.062,
+          "peak_over_weights_gb": 0.336,
+          "finite": true
+        },
+        {
+          "impl": "auto_chunked (fused kernels disabled)",
+          "tokens": 16384,
+          "seconds": 0.067,
+          "peak_over_weights_gb": 0.336,
+          "finite": true
+        },
+        {
+          "impl": "auto_chunked",
+          "tokens": 32768,
+          "seconds": 0.173,
+          "peak_over_weights_gb": 0.672,
+          "finite": true
+        },
+        {
+          "impl": "auto_chunked (fused kernels disabled)",
+          "tokens": 32768,
+          "seconds": 0.201,
+          "peak_over_weights_gb": 0.672,
+          "finite": true
+        },
+        {
+          "impl": "auto_chunked",
+          "tokens": 65536,
+          "seconds": 0.501,
+          "peak_over_weights_gb": 1.345,
+          "finite": true
+        },
+        {
+          "impl": "auto_chunked (fused kernels disabled)",
+          "tokens": 65536,
+          "seconds": 0.693,
+          "peak_over_weights_gb": 1.345,
+          "finite": true
+        },
+        {
+          "impl": "sdpa",
+          "tokens": 8192,
+          "seconds": 0.045,
+          "peak_over_weights_gb": 1.012,
+          "finite": true
+        },
+        {
+          "impl": "sdpa",
+          "tokens": 16384,
+          "seconds": 0.153,
+          "peak_over_weights_gb": 4.024,
+          "finite": true
+        }
+      ]
+    }
+  }
+}

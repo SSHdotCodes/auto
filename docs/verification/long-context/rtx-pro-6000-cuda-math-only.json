@@ -1,0 +1,91 @@
+{
+  "device": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+  "torch": "2.13.0+cu130",
+  "score_budget_mb": 1024,
+  "models": {
+    "auto-0.4b-2-iteration-1": [
+      {
+        "tokens": 8192,
+        "fused_seconds": 0.465,
+        "fused_peak_gb": 0.258,
+        "math_seconds": 3.164,
+        "math_peak_gb": 2.457,
+        "finite": true,
+        "p_deny_fused": 0.6851073503494263,
+        "p_deny_math": 0.6675812005996704
+      },
+      {
+        "tokens": 16384,
+        "fused_seconds": 0.116,
+        "fused_peak_gb": 0.453,
+        "math_seconds": 1.289,
+        "math_peak_gb": 2.641,
+        "finite": true,
+        "p_deny_fused": 0.8212233781814575,
+        "p_deny_math": 0.8169911503791809
+      },
+      {
+        "tokens": 32768,
+        "fused_seconds": 0.311,
+        "fused_peak_gb": 0.906,
+        "math_seconds": 5.131,
+        "math_peak_gb": 3.02,
+        "finite": true,
+        "p_deny_fused": 0.744841992855072,
+        "p_deny_math": 0.7504613399505615
+      },
+      {
+        "tokens": 65536,
+        "fused_seconds": 0.882,
+        "fused_peak_gb": 1.813,
+        "math_seconds": 23.91,
+        "math_peak_gb": 3.784,
+        "finite": true,
+        "p_deny_fused": 0.7483522891998291,
+        "p_deny_math": 0.7492249011993408
+      }
+    ],
+    "auto-200m-2": [
+      {
+        "tokens": 8192,
+        "fused_seconds": 0.026,
+        "fused_peak_gb": 0.168,
+        "math_seconds": 0.305,
+        "math_peak_gb": 2.41,
+        "finite": true,
+        "p_deny_fused": 0.5234203934669495,
+        "p_deny_math": 0.5185461640357971
+      },
+      {
+        "tokens": 16384,
+        "fused_seconds": 0.062,
+        "fused_peak_gb": 0.336,
+        "math_seconds": 0.763,
+        "math_peak_gb": 2.546,
+        "finite": true,
+        "p_deny_fused": 0.11357958614826202,
+        "p_deny_math": 0.11476478725671768
+      },
+      {
+        "tokens": 32768,
+        "fused_seconds": 0.171,
+        "fused_peak_gb": 0.672,
+        "math_seconds": 2.987,
+        "math_peak_gb": 2.83,
+        "finite": true,
+        "p_deny_fused": 0.18653921782970428,
+        "p_deny_math": 0.18587329983711243
+      },
+      {
+        "tokens": 65536,
+        "fused_seconds": 0.496,
+        "fused_peak_gb": 1.344,
+        "math_seconds": 14.02,
+        "math_peak_gb": 3.406,
+        "finite": true,
+        "p_deny_fused": 0.09501305222511292,
+        "p_deny_math": 0.09301680326461792
+      }
+    ]
+  }
+}

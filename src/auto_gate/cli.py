@@ -1,9 +1,10 @@
 import argparse
 import json
 import sys
+from dataclasses import asdict
 
 from . import __version__
-from .config import Settings, home
+from .config import MODELS, Settings, home
 
 
 def main():
@@ -19,9 +20,11 @@ def main():
     install.add_argument(
         "--no-start", action="store_true", help="Download and install without warming the runtime"
     )
+    install.add_argument("--model", choices=list(MODELS), help="Auto model to use (default: keep current)")
     remove = commands.add_parser("uninstall", help="Remove only Auto's agent integration")
     remove.add_argument("agent", choices=["pi", "opencode", "hermes"])
-    commands.add_parser("download", help="Download the model for offline operation")
+    download = commands.add_parser("download", help="Download the model for offline operation")
+    download.add_argument("--model", choices=list(MODELS), help="Auto model to use (default: keep current)")
     commands.add_parser("start", help="Start or reuse the local inference process")
     commands.add_parser("stop", help="Unload the local inference process")
     commands.add_parser("doctor", help="Show installation and active backend diagnostics")
@@ -30,6 +33,7 @@ def main():
     score = commands.add_parser("score", help="Classify a JSON request from stdin or a file")
     score.add_argument("--file")
     config = commands.add_parser("configure", help="Set runtime options; restart required")
+    config.add_argument("--model", choices=list(MODELS))
     config.add_argument("--device", choices=["auto", "cpu", "cuda", "mps"])
     config.add_argument("--attention", choices=["chunked", "flash"])
     config.add_argument("--max-tokens", type=int)
@@ -70,19 +74,24 @@ def execute(args):
     from .client import ensure_server, health, stop
 
     settings = Settings.load()
+    if getattr(args, "model", None) and args.command in {"download", "install"}:
+        settings = Settings(**{**asdict(settings), "model": args.model})
     if args.command == "configure":
-        from dataclasses import asdict
-
         options = asdict(settings)
         options.update({k: v for k, v in vars(args).items() if k in options and v is not None})
         Settings(**options).save()
         stop()
         print("Configuration saved. The next call will start the updated runtime.")
+        if args.model or args.attention == "flash":
+            print("Run `auto download` while online to fetch the selected model or kernel.")
     elif args.command in {"download", "install"}:
         from .model import download
 
         settings.save()
-        print("Downloading the pinned Auto model (about 0.8 GB); subsequent runs stay local.")
+        spec = MODELS[settings.model]
+        print(
+            f"Downloading the pinned {settings.model} model ({spec['download']}); subsequent runs stay local."
+        )
         download(settings)
         if args.command == "install":
             from .install import install_agent
