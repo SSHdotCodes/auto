@@ -6,7 +6,7 @@ matching the checkpoint format on CPU, CUDA/ROCm and MPS. Only one linear weight
 """
 
 import json
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
 from pathlib import Path
 
 import torch
@@ -99,10 +99,11 @@ def quantized_modules(model):
     ]
 
 
-def load_quantized(path, *, bits, device, dtype, attn_implementation, **kwargs):
+def load_quantized(path, *, bits, device, dtype, attn_implementation, allow_all_kernels=False):
     """Build on meta, replace quantized modules, then strictly load the pinned local tensors."""
     from safetensors.torch import load_file
     from transformers import AutoConfig, AutoModelForSequenceClassification
+    from transformers.integrations.hub_kernels import allow_all_hub_kernels
     from transformers.models.modernbert.modeling_modernbert import ModernBertRotaryEmbedding
 
     path = Path(path)
@@ -122,9 +123,11 @@ def load_quantized(path, *, bits, device, dtype, attn_implementation, **kwargs):
     config = AutoConfig.from_pretrained(path, local_files_only=True, trust_remote_code=False)
     if config.model_type != "modernbert":
         raise ValueError("Auto quantization requires ModernBERT")
-    with torch.device("meta"):
+    # Transformers 5.16.1's from_config forwards allow_all_kernels to the model constructor,
+    # which ModernBERT does not accept. Enter its trust context explicitly instead.
+    with torch.device("meta"), allow_all_hub_kernels() if allow_all_kernels else nullcontext():
         model = AutoModelForSequenceClassification.from_config(
-            config, dtype=dtype, attn_implementation=attn_implementation, trust_remote_code=False, **kwargs
+            config, dtype=dtype, attn_implementation=attn_implementation, trust_remote_code=False
         )
         expected = quantized_modules(model)
         if not isinstance(spec.get("modules"), list) or sorted(spec["modules"]) != sorted(expected):

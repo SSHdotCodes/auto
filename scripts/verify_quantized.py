@@ -54,7 +54,9 @@ def main():
     reference = np.load(ref_path)
     assert np.array_equal(labels, reference["labels"])
     assert np.array_equal(reference["source_row"], np.arange(len(labels)))
-    predictions, ref_predictions = values.argmax(-1), reference["logits"].argmax(-1)
+    predictions = (values[:, 1] >= values[:, 0]).astype(np.int64)
+    ref_logits = reference["logits"]
+    ref_predictions = (ref_logits[:, 1] >= ref_logits[:, 0]).astype(np.int64)
     long = np.asarray(lengths) >= 16384
     report = {
         "runtime": classifier.info(),

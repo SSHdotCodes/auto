@@ -1,0 +1,50 @@
+{
+  "runtime": {
+    "device": "mps",
+    "backend": "mps",
+    "attention": "chunked",
+    "dtype": "torch.float32",
+    "quantization": "int8",
+    "max_tokens": 65536,
+    "model": "ProCreations/auto-200m-2-int8",
+    "revision": "2501a22901e8cc520c746a86f3f9d04f7feaaefb",
+    "fallback": null
+  },
+  "rows": [
+    {
+      "seconds": 0.46700358390808105,
+      "tokens": 6452,
+      "decision": "deny",
+      "bytes_after": 150091008,
+      "p_deny": 0.8555096859246886
+    },
+    {
+      "seconds": 0.4508970829192549,
+      "tokens": 6452,
+      "decision": "deny",
+      "bytes_after": 150091008,
+      "p_deny": 0.8555096859246886
+    },
+    {
+      "seconds": 0.454756666906178,
+      "tokens": 6452,
+      "decision": "deny",
+      "bytes_after": 150091008,
+      "p_deny": 0.8555096859246886
+    },
+    {
+      "seconds": 0.45959654194302857,
+      "tokens": 6452,
+      "decision": "deny",
+      "bytes_after": 150091008,
+      "p_deny": 0.8555096859246886
+    },
+    {
+      "seconds": 0.45805895794183016,
+      "tokens": 6452,
+      "decision": "deny",
+      "bytes_after": 150091008,
+      "p_deny": 0.8555096859246886
+    }
+  ]
+}

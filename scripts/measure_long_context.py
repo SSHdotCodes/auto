@@ -109,6 +109,8 @@ def main():
     with open(args.output, "w", encoding="utf-8") as stream:
         json.dump(report, stream, indent=2)
         stream.write("\n")
+    if len(rows) != len(args.lengths) or any(row.get("finite") is not True for row in rows):
+        raise SystemExit("Long-context verification failed; inspect the saved report")
 
 
 if __name__ == "__main__":

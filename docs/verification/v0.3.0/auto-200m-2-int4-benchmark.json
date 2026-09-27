@@ -1,0 +1,28 @@
+{
+  "runtime": {
+    "device": "cuda",
+    "backend": "cuda",
+    "attention": "chunked",
+    "dtype": "torch.bfloat16",
+    "quantization": "int4",
+    "max_tokens": 65536,
+    "model": "ProCreations/auto-200m-2-int4",
+    "revision": "b907c818cb83fdc5b8c1343ed66db0b155c1e7fb",
+    "fallback": null
+  },
+  "torch": "2.13.0+cu130",
+  "gpu": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+  "dataset": "ProCreations/approve-or-deny",
+  "dataset_revision": "a38b625913dd46ca9702063f1597c979e6ace34e",
+  "n": 3000,
+  "seconds": 89.39524778502528,
+  "correct": 2885,
+  "false_approve": 60,
+  "false_deny": 55,
+  "reference_correct": 2884,
+  "decisions_differing": 1,
+  "long_context": {
+    "n": 239,
+    "correct": 227
+  }
+}

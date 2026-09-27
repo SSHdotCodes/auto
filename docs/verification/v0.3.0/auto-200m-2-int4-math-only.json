@@ -1,0 +1,26 @@
+[
+  {
+    "tokens": 8192,
+    "seconds": 3.6975168209755793,
+    "peak_gb_over_loaded": 2.4103074073791504,
+    "finite": true
+  },
+  {
+    "tokens": 16384,
+    "seconds": 0.7628077149856836,
+    "peak_gb_over_loaded": 2.547132968902588,
+    "finite": true
+  },
+  {
+    "tokens": 32768,
+    "seconds": 2.977792688063346,
+    "peak_gb_over_loaded": 2.8325276374816895,
+    "finite": true
+  },
+  {
+    "tokens": 65536,
+    "seconds": 13.980939517030492,
+    "peak_gb_over_loaded": 3.409182071685791,
+    "finite": true
+  }
+]

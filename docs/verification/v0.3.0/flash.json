@@ -1,0 +1,34 @@
+[
+  {
+    "runtime": {
+      "device": "cuda",
+      "backend": "cuda",
+      "attention": "flash",
+      "dtype": "torch.bfloat16",
+      "quantization": "int4",
+      "max_tokens": 65536,
+      "model": "ProCreations/auto-200m-2-int4",
+      "revision": "b907c818cb83fdc5b8c1343ed66db0b155c1e7fb",
+      "fallback": null
+    },
+    "tokens": 65536,
+    "finite": true,
+    "peak_gb": 1.5416231155395508
+  },
+  {
+    "runtime": {
+      "device": "cuda",
+      "backend": "cuda",
+      "attention": "flash",
+      "dtype": "torch.bfloat16",
+      "quantization": "int8",
+      "max_tokens": 65536,
+      "model": "ProCreations/auto-200m-2-int8",
+      "revision": "2501a22901e8cc520c746a86f3f9d04f7feaaefb",
+      "fallback": null
+    },
+    "tokens": 65536,
+    "finite": true,
+    "peak_gb": 1.6094422340393066
+  }
+]

@@ -48,6 +48,14 @@ if __name__ == "__main__":
         result = json.loads(cli("bridge", input=json.dumps(payload, ensure_ascii=False)))
         assert result["decision"] == "deny", result
         assert json.loads(cli("bridge", input="broken JSON"))["decision"] == "review"
+        if selected == "auto-200m-2-int4":
+            # Switch while the old daemon is live. CI has already cached the second quant.
+            cli("download", "--model", "auto-200m-2-int8")
+            assert health() is None
+            cli("start")
+            assert health()["model"] == Settings(model="auto-200m-2-int8").model_id
+            switched = json.loads(cli("bridge", input=json.dumps(payload, ensure_ascii=False)))
+            assert switched["decision"] == "deny", switched
         state = home() / "runtime.json"
         if os.name != "nt":
             assert state.stat().st_mode & 0o077 == 0

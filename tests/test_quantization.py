@@ -221,3 +221,17 @@ def test_classifier_gpu_failure_retries_packed_model_on_cpu(tmp_path, monkeypatc
     embedding = classifier.model.model.embeddings.tok_embeddings
     assert embedding.qweight.dtype == (torch.uint8 if bits == 4 else torch.int8)
     assert embedding._compute.dtype == torch.float32
+
+
+def test_kernel_trust_option_is_not_forwarded_to_modernbert_constructor(tmp_path):
+    checkpoint(tmp_path, 4)
+    model = load_quantized(
+        tmp_path,
+        bits=4,
+        device="cpu",
+        dtype=torch.float32,
+        attn_implementation="auto_chunked",
+        allow_all_kernels=True,
+    )
+    with torch.inference_mode():
+        assert torch.isfinite(forward_classifier(model, torch.tensor([[1, 2]]))).all()
