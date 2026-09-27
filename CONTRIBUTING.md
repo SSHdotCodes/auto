@@ -11,7 +11,7 @@ npm test
 npm run build:site
 ```
 
-Run `ruff check .`, `ruff format --check .`, and `python -m build` before submitting Python changes. Tests verify authorization context, attention window equivalence, plugin lifecycle, isolated install paths, local API boundaries, and installer hardware selection. `pytest -m model` downloads ~0.8 GB and tests actual CPU inference. Use `AUTO_HOME` for an isolated cache. The 24 fixtures are illustrative checks, not a replacement for a held-out benchmark.
+Run `ruff check .`, `ruff format --check .`, and `python -m build` before submitting Python changes. Tests verify authorization context, attention window equivalence, plugin lifecycle, isolated install paths, local API boundaries, and installer hardware selection. `pytest -m model` downloads ~0.8 GB and tests actual CPU inference. Set `AUTO_TEST_MODEL=auto-200m-2-int4` or `auto-200m-2-int8` to test the packed checkpoints; CI checks all four variants. Use `AUTO_HOME` for an isolated cache. The 24 fixtures are illustrative checks, not a replacement for a held-out benchmark.
 
 Browser tests run in CI through Playwright on desktop and mobile viewports. The website is a static app with local assets: `npm run build:site`, then `python site/serve.py`. No public inference endpoint is involved. Build copies the exact source installer scripts into the website.
 

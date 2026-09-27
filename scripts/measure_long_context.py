@@ -63,7 +63,10 @@ def child(device, model, length):
         "device": device,
         "model": model,
         "tokens": length,
-        "seconds": round(seconds, 2),
+        "seconds": round(seconds, 4),
+        "runtime": classifier.info(),
+        "loaded_rss_gb": round(loaded_rss / 2**30, 3),
+        "loaded_accelerator_gb": round(loaded / 2**30, 3),
         "attention": classifier.attention,
         "finite": bool(torch.isfinite(logits).all()),
     }
@@ -106,6 +109,8 @@ def main():
     with open(args.output, "w", encoding="utf-8") as stream:
         json.dump(report, stream, indent=2)
         stream.write("\n")
+    if len(rows) != len(args.lengths) or any(row.get("finite") is not True for row in rows):
+        raise SystemExit("Long-context verification failed; inspect the saved report")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,50 @@
+{
+  "runtime": {
+    "device": "cuda",
+    "backend": "cuda",
+    "attention": "chunked",
+    "dtype": "torch.bfloat16",
+    "quantization": "int8",
+    "max_tokens": 65536,
+    "model": "ProCreations/auto-200m-2-int8",
+    "revision": "2501a22901e8cc520c746a86f3f9d04f7feaaefb",
+    "fallback": null
+  },
+  "rows": [
+    {
+      "seconds": 0.14740710600744933,
+      "tokens": 6452,
+      "decision": "deny",
+      "bytes_after": 183572992,
+      "p_deny": 0.8512122384507991
+    },
+    {
+      "seconds": 0.11048389389179647,
+      "tokens": 6452,
+      "decision": "deny",
+      "bytes_after": 183572992,
+      "p_deny": 0.8512122384507991
+    },
+    {
+      "seconds": 0.10908012208528817,
+      "tokens": 6452,
+      "decision": "deny",
+      "bytes_after": 183572992,
+      "p_deny": 0.8512122384507991
+    },
+    {
+      "seconds": 0.11366613407153636,
+      "tokens": 6452,
+      "decision": "deny",
+      "bytes_after": 183572992,
+      "p_deny": 0.8512122384507991
+    },
+    {
+      "seconds": 0.10942506405990571,
+      "tokens": 6452,
+      "decision": "deny",
+      "bytes_after": 183572992,
+      "p_deny": 0.8512122384507991
+    }
+  ]
+}

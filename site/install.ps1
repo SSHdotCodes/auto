@@ -1,7 +1,7 @@
 param(
     [ValidateSet('pi','opencode','hermes','all')][string]$Agent = 'pi',
     [ValidateSet('auto','cpu','cuda','cuda12','cuda-legacy','rocm')][string]$Backend = 'auto',
-    [ValidateSet('','auto-0.4b-2','auto-200m-2')][string]$Model = ''
+    [ValidateSet('','auto-0.4b-2','auto-200m-2','auto-200m-2-int4','auto-200m-2-int8')][string]$Model = ''
 )
 $ErrorActionPreference = 'Stop'
 if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {

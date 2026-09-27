@@ -27,7 +27,7 @@ class Handler(SimpleHTTPRequestHandler):
     def send_head(self):
         route = unquote(urlsplit(self.path).path).lstrip("/") or "index.html"
         if route == "healthz":
-            body = json.dumps({"status": "ok", "app": "auto", "version": "0.2.0"}).encode()
+            body = json.dumps({"status": "ok", "app": "auto", "version": "0.3.0"}).encode()
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
             self.send_header("Content-Length", str(len(body)))

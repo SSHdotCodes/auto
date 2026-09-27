@@ -98,3 +98,33 @@ def test_bridge_malformed_json_produces_review(tmp_path, monkeypatch):
         check=True,
     )
     assert json.loads(r.stdout)["decision"] == "review"
+
+
+@pytest.mark.parametrize("command", ["download", "install"])
+def test_model_selection_unloads_daemon_after_successful_download(tmp_path, monkeypatch, command):
+    from auto_gate.cli import execute
+
+    monkeypatch.setenv("AUTO_HOME", str(tmp_path))
+    Settings(model="auto-200m-2").save()
+    events = []
+    monkeypatch.setattr("auto_gate.model.download", lambda settings: events.append("download"))
+    monkeypatch.setattr("auto_gate.client.stop", lambda: events.append("stop"))
+    monkeypatch.setattr("auto_gate.install.install_agent", lambda agent: [])
+    execute(SimpleNamespace(command=command, model="auto-200m-2-int4", agent="pi", no_start=True))
+    assert events == ["download", "stop"]
+    assert Settings.load().model == "auto-200m-2-int4"
+
+
+def test_failed_download_preserves_current_model(tmp_path, monkeypatch):
+    from auto_gate.cli import execute
+
+    monkeypatch.setenv("AUTO_HOME", str(tmp_path))
+    Settings(model="auto-200m-2").save()
+
+    def fail(settings):
+        raise OSError("offline")
+
+    monkeypatch.setattr("auto_gate.model.download", fail)
+    with pytest.raises(OSError, match="offline"):
+        execute(SimpleNamespace(command="download", model="auto-200m-2-int4"))
+    assert Settings.load().model == "auto-200m-2"

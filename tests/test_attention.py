@@ -17,7 +17,7 @@ def tiny_config(pooling="cls", max_positions=512):
         intermediate_size=48,
         num_hidden_layers=3,
         num_attention_heads=4,
-        max_position_embeddings=512,
+        max_position_embeddings=max_positions,
         local_attention=16,
         classifier_pooling=pooling,
         pad_token_id=0,

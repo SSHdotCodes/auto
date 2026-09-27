@@ -11,7 +11,7 @@ import sys
 import venv
 from pathlib import Path
 
-VERSION = "0.2.0"
+VERSION = "0.3.0"
 BUILDS = {
     "cpu": ("2.13.0", "https://download.pytorch.org/whl/cpu"),
     "mps": ("2.13.0", None),
@@ -73,7 +73,9 @@ def main():
     parser.add_argument("--agent", choices=["pi", "opencode", "hermes", "all"], default="pi")
     parser.add_argument("--backend", choices=["auto", *BUILDS], default="auto")
     parser.add_argument(
-        "--model", choices=["auto-0.4b-2", "auto-200m-2"], help="Auto model (default: auto-0.4b-2)"
+        "--model",
+        choices=["auto-0.4b-2", "auto-200m-2", "auto-200m-2-int4", "auto-200m-2-int8"],
+        help="Auto model (default: auto-0.4b-2)",
     )
     parser.add_argument(
         "--source", default=f"https://github.com/SSHDotCodes/auto/archive/refs/tags/v{VERSION}.zip"

@@ -50,14 +50,30 @@ jobs:
       - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: .auto-test/models
-          key: auto-weights-${{ runner.os }}-456e153dad2b12db14babb1dbdc8f8ece607e80a-0bbb929f07564a22f6bd67d6624467bca6f1ab14
+          key: auto-weights-v030-${{ runner.os }}-456e153dad2b12db14babb1dbdc8f8ece607e80a-0bbb929f07564a22f6bd67d6624467bca6f1ab14
       - name: Real published model on CPU
         run: python -m pytest -q -m model
       - name: Real published auto-200m-2 on CPU
         env:
           AUTO_TEST_MODEL: auto-200m-2
         run: python -m pytest -q -m model
+      - name: Published int4 checkpoint on CPU
+        env:
+          AUTO_TEST_MODEL: auto-200m-2-int4
+        run: python -m pytest -q -m model
+      - name: Published int8 checkpoint on CPU
+        env:
+          AUTO_TEST_MODEL: auto-200m-2-int8
+        run: python -m pytest -q -m model
       - name: Downloaded package, offline daemon, and all installed adapters
+        run: python scripts/verify_runtime.py
+      - name: Offline int4 daemon and adapters
+        env:
+          AUTO_TEST_MODEL: auto-200m-2-int4
+        run: python scripts/verify_runtime.py
+      - name: Offline int8 daemon and adapters
+        env:
+          AUTO_TEST_MODEL: auto-200m-2-int8
         run: python scripts/verify_runtime.py
       - name: PowerShell installer parses
         if: runner.os == 'Windows'

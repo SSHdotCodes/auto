@@ -87,12 +87,16 @@ def execute(args):
     elif args.command in {"download", "install"}:
         from .model import download
 
-        settings.save()
         spec = MODELS[settings.model]
         print(
             f"Downloading the pinned {settings.model} model ({spec['download']}); subsequent runs stay local."
         )
         download(settings)
+        # A running daemon has its own model/settings. Reinstallation or explicit selection
+        # must unload it before the next call, including when --no-start is used.
+        if args.command == "install" or getattr(args, "model", None):
+            stop()
+        settings.save()
         if args.command == "install":
             from .install import install_agent
 

@@ -48,3 +48,16 @@ Text sections appear in the trained order: `PROPOSED TOOL CALL`, `USER REQUEST`,
 Portable attention computes the exact bidirectional local/global attention pattern without allocating any N×N tensor. Global layers call PyTorch's fused scaled-dot-product attention without a mask; on CUDA/ROCm and CPU only memory-efficient fused kernels are allowed, and where none applies (and always on MPS) queries are processed in blocks sized from a score budget (256 MB on CPU, 1 GB on GPUs; `AUTO_ATTENTION_BUDGET_MB` overrides). With only PyTorch's plain math kernel, which also keeps softmax intermediates, the measured peak on an RTX PRO 6000 was 2.4–3.8 GB above the weights from 8k to 64k tokens. Sliding-window layers process 1,024-query blocks against only their ±64-token window. The GLU MLP, which acts on each token independently, runs in 8,192-token chunks. The same classifier pooling/head is used. Tests check numerical equivalence against the standard implementation on a small ModernBERT at every block boundary (fused and fallback paths), and that the largest tensor allocated grows linearly with context. Dtype and backend rounding can still change probabilities; published benchmark scores use the original BF16/FlashAttention reference. On an RTX PRO 6000 in BF16, the full 3,000-item benchmark through the portable path came within one item of each model's published FlashAttention predictions: auto-0.4b-2 as pinned by Auto 2,902 vs 2,903 (5 borderline decisions differ; identical on the 16k–64k slice), auto-0.4b-2 iteration-1 weights 2,910 vs 2,910 (every decision identical), auto-200m-2 2,889 vs 2,890 (3 differ). Two FlashAttention runs that only batch differently disagree by as much (2,909 vs 2,910).
 
 Model weights are about 0.8 GB (auto-0.4b-2) or 0.3 GB (auto-200m-2) in BF16; CPU and MPS use FP32 parameters. Native BF16 CUDA/ROCm devices use BF16. An optional pinned FlashAttention kernel can be enabled explicitly; `auto download` stores it in Auto's data directory and the runtime loads it offline. If it is missing or fails to load, the runtime uses the portable attention on the same GPU and reports why. The normal installer has no custom compiler requirement.
+
+## Packed quantized checkpoints
+
+The model registry pins int4/int8 snapshots and their bit widths. Downloads include only config, tokenizer,
+quantization metadata and safetensors; inference is offline and does not import `auto_quant.py` from the model
+repository. `quantization.py` builds ModernBERT on the meta device, validates the complete module list, replaces
+embeddings/linears with packed buffers and loads strictly. RoPE's nonpersistent buffers are rebuilt on the device.
+
+Int8 uses signed bytes and one FP16 scale per output row. Int4 uses offset-binary nibbles (low nibble first,
+integer = nibble - 8) and one FP16 scale per 128 input weights. Reconstruction multiplies integers and stored
+scales in FP32 before casting to the compute dtype. Embeddings expand at most 4,096 looked-up rows at once;
+linears expand on demand. Long MLPs hold just their two expanded weights across 8,192-token chunks and clear
+them in `finally` paths. Quantization never replaces or disables the bounded attention implementation.

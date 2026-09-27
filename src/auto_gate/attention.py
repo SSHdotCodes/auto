@@ -13,6 +13,7 @@ No FlashAttention extension, CUDA compiler, or vendor-specific code is required.
 
 import os
 import types
+from contextlib import ExitStack
 
 import torch
 import torch.nn.functional as F
@@ -125,10 +126,19 @@ def _chunked_mlp_forward(self, hidden_states):
     if n <= MLP_CHUNK or torch.is_grad_enabled():
         return self._auto_full_forward(hidden_states)
     # The GLU acts on each token independently, so chunking along the sequence is exact.
-    return torch.cat(
-        [self._auto_full_forward(hidden_states[..., s : s + MLP_CHUNK, :]) for s in range(0, n, MLP_CHUNK)],
-        dim=-2,
-    )
+    from .quantization import QuantLinear
+
+    with ExitStack() as stack:
+        for module in self.modules():
+            if isinstance(module, QuantLinear):
+                stack.enter_context(module.expanded(hidden_states.dtype))
+        # A list + cat retains every chunk plus a second full output during concatenation.
+        output = torch.empty_like(hidden_states)
+        for start in range(0, n, MLP_CHUNK):
+            output[..., start : start + MLP_CHUNK, :] = self._auto_full_forward(
+                hidden_states[..., start : start + MLP_CHUNK, :]
+            )
+        return output
 
 
 def bound_mlp_memory(model):
