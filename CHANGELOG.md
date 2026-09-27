@@ -9,6 +9,7 @@
 - Keep exact bounded-memory attention on CPU, MPS, CUDA and ROCm. Chunk embedding lookups, reuse expanded MLP
   weights only within the current layer, and preallocate MLP outputs instead of retaining chunks plus a copy.
   Temporary weights are released even on failure; embedding compute dtype follows CPU fallback.
+- Reinstallation and explicit model downloads unload an old daemon so the next request uses the selected weights. Failed downloads preserve the previous model choice.
 - Report the active quantization in runtime diagnostics. Add packed-format validation, independent dense-reference
   equivalence tests, forced-math allocation-growth tests, and real int4/int8 inference to all CPU CI platforms.
 - Publish reproducible [v0.3.0 speed, memory and accuracy measurements](docs/verification/v0.3.0/README.md).

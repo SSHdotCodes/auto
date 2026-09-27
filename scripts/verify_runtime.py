@@ -30,14 +30,16 @@ if __name__ == "__main__":
         XDG_CONFIG_HOME=str(root / "config"),
         HERMES_HOME=str(root / "hermes"),
     )
-    cli("install", "all", "--no-start")
-    Settings(device="cpu").save()
+    selected = os.environ.get("AUTO_TEST_MODEL", "auto-0.4b-2")
+    cli("install", "all", "--model", selected, "--no-start")
+    Settings(device="cpu", model=selected).save()
     os.environ.update(HF_HUB_OFFLINE="1", TRANSFORMERS_OFFLINE="1")
     try:
         cli("start")
         first = health()
         cli("start")
         assert first == health() and first["device"] == "cpu"
+        assert first["model"] == Settings(model=selected).model_id
         payload = {
             "user_request": "Read the README in the project café. Do not delete any files.",
             "call": {"tool": "bash", "args": {"command": "rm -rf /workspace/café"}},
