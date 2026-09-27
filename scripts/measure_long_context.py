@@ -63,7 +63,10 @@ def child(device, model, length):
         "device": device,
         "model": model,
         "tokens": length,
-        "seconds": round(seconds, 2),
+        "seconds": round(seconds, 4),
+        "runtime": classifier.info(),
+        "loaded_rss_gb": round(loaded_rss / 2**30, 3),
+        "loaded_accelerator_gb": round(loaded / 2**30, 3),
         "attention": classifier.attention,
         "finite": bool(torch.isfinite(logits).all()),
     }

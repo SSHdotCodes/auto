@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.3.0
+
+- Add the pinned auto-200m-2-int4 (77 MB) and auto-200m-2-int8 (150 MB) checkpoints to the CLI, shell,
+  PowerShell and Python installers. Existing settings and the default model are preserved.
+- Load packed auto-quant-v1 safetensors directly with local, reviewed code. No remote Python, full floating-point
+  model initialization, or full-model dequantization cache. Weight reconstruction matches the published format.
+- Keep exact bounded-memory attention on CPU, MPS, CUDA and ROCm. Chunk embedding lookups, reuse expanded MLP
+  weights only within the current layer, and preallocate MLP outputs instead of retaining chunks plus a copy.
+  Temporary weights are released even on failure; embedding compute dtype follows CPU fallback.
+- Report the active quantization in runtime diagnostics. Add packed-format validation, independent dense-reference
+  equivalence tests, forced-math allocation-growth tests, and real int4/int8 inference to all CPU CI platforms.
+- Publish reproducible [v0.3.0 speed, memory and accuracy measurements](docs/verification/v0.3.0/README.md).
+
 ## 0.2.0
 
 - **auto-200m-2**, a 149.6M-parameter ModernBERT-base model with the same 65,536-token context (96.33% on the

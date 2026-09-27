@@ -2,17 +2,26 @@ import gc
 import os
 import threading
 
-from .config import FLASH, Settings, home
+from .config import FLASH, MODELS, Settings, home
 from .schema import Decision, ScoreRequest, serialize
 
-MODEL_FILES = ["config.json", "model.safetensors", "tokenizer.json", "tokenizer_config.json"]
+
+def model_files(settings):
+    files = ["config.json", "tokenizer.json", "tokenizer_config.json"]
+    bits = MODELS[settings.model].get("bits")
+    return files + (
+        ["quant_config.json", f"auto_quant_int{bits}.safetensors"] if bits else ["model.safetensors"]
+    )
 
 
 def download(settings: Settings):
     from huggingface_hub import snapshot_download
 
     path = snapshot_download(
-        settings.model_id, revision=settings.revision, allow_patterns=MODEL_FILES, cache_dir=home() / "models"
+        settings.model_id,
+        revision=settings.revision,
+        allow_patterns=model_files(settings),
+        cache_dir=home() / "models",
     )
     if settings.attention == "flash":
         download_flash_kernel()
@@ -69,7 +78,7 @@ class Classifier:
         self.path = snapshot_download(
             settings.model_id,
             revision=settings.revision,
-            allow_patterns=MODEL_FILES,
+            allow_patterns=model_files(settings),
             cache_dir=home() / "models",
             local_files_only=True,
         )
@@ -105,19 +114,33 @@ class Classifier:
         warmup = torch.tensor([[self.tokenizer.cls_token_id, self.tokenizer.sep_token_id]])
         for step, (device, attention, dtype) in enumerate(plan):
             try:
-                self.model = (
-                    AutoModelForSequenceClassification.from_pretrained(
+                implementation = FLASH if attention == "flash" else "auto_chunked"
+                kernel_options = {"allow_all_kernels": True} if attention == "flash" else {}
+                bits = MODELS[settings.model].get("bits")
+                if bits:
+                    from .quantization import load_quantized
+
+                    self.model = load_quantized(
                         self.path,
+                        bits=bits,
+                        device=device,
                         dtype=dtype,
-                        local_files_only=True,
-                        trust_remote_code=False,
-                        attn_implementation=FLASH if attention == "flash" else "auto_chunked",
-                        # The kernel is pinned to an immutable commit and was fetched explicitly at download time.
-                        **({"allow_all_kernels": True} if attention == "flash" else {}),
+                        attn_implementation=implementation,
+                        **kernel_options,
                     )
-                    .to(device)
-                    .eval()
-                )
+                else:
+                    self.model = (
+                        AutoModelForSequenceClassification.from_pretrained(
+                            self.path,
+                            dtype=dtype,
+                            local_files_only=True,
+                            trust_remote_code=False,
+                            attn_implementation=implementation,
+                            **kernel_options,
+                        )
+                        .to(device)
+                        .eval()
+                    )
                 self.device, self.attention = device, attention
                 # A tiny forward pass surfaces kernel and backend failures now instead of on the first request.
                 with torch.inference_mode():
@@ -146,6 +169,9 @@ class Classifier:
             "backend": "rocm" if self.device == "cuda" and torch.version.hip else self.device,
             "attention": self.attention,
             "dtype": str(next(self.model.parameters()).dtype),
+            "quantization": f"int{MODELS[self.settings.model]['bits']}"
+            if "bits" in MODELS[self.settings.model]
+            else None,
             "max_tokens": self.settings.max_tokens,
             "model": self.settings.model_id,
             "revision": self.settings.revision,

@@ -98,7 +98,7 @@
           <span>Built to run where you work.</span
           ><a href="#approach"
             >Discover Auto <span aria-hidden="true">↓</span></a
-          ><span class="hero-coordinate">LOCAL BY NATURE · v0.2.0</span>
+          ><span class="hero-coordinate">LOCAL BY NATURE · v0.3.0</span>
         </div>
       </section>
       <div class="stats wrap" aria-label="Model at a glance">
@@ -489,7 +489,12 @@
             GPU support depends on the device, driver, and available PyTorch
             wheel. Unsupported accelerators use CPU where possible. AMD on
             Windows uses CPU. Default budget: 32,768 tokens, up to 65,536;
-            memory grows linearly with context, even without FlashAttention.
+            memory grows linearly with context, even without FlashAttention. For
+            77 MB int4 weights, add
+            <code>--model auto-200m-2-int4</code> (PowerShell:
+            <code>-Model auto-200m-2-int4</code>); int8 is available too.
+            Quantization reduces weight storage; activations still grow with
+            context.
           </p>
         </div>
       </section>
@@ -526,6 +531,34 @@
             </p>
             <div>
               <span>96.33% benchmark accuracy</span><span class="tag">New</span>
+            </div></a
+          ><a
+            class="model-card"
+            href="https://huggingface.co/ProCreations/auto-200m-2-int8"
+            ><span class="micro-label">HALF-SIZE WEIGHTS <span>↗</span></span>
+            <h3>auto-200m-2-int8</h3>
+            <p>
+              150 MB packed weights · 65,536-token context<br />CPU, MPS, CUDA
+              and ROCm
+            </p>
+            <div>
+              <span>96.33% published benchmark accuracy</span
+              ><span class="tag">New</span>
+            </div></a
+          ><a
+            class="model-card"
+            href="https://huggingface.co/ProCreations/auto-200m-2-int4"
+            ><span class="micro-label"
+              >THE LIGHTEST WEIGHTS <span>↗</span></span
+            >
+            <h3>auto-200m-2-int4</h3>
+            <p>
+              77 MB packed weights · 65,536-token context<br />Bounded-memory
+              attention on every backend
+            </p>
+            <div>
+              <span>96.13% published benchmark accuracy</span
+              ><span class="tag">New</span>
             </div></a
           ><a
             class="model-card"

@@ -40,7 +40,20 @@ Auto-selection chooses the newest applicable row. A missing accelerator wheel fa
 
 AMD support follows the official [ROCm compatibility matrix](https://rocm.docs.amd.com/en/latest/compatibility/compatibility-matrix.html), not a blanket claim for every Radeon card. Confirm your GPU and OS there. Use the official [PyTorch installation selector](https://pytorch.org/get-started/locally/) for custom installations and [Apple MPS guidance](https://developer.apple.com/metal/pytorch/) for OS requirements. Do not use GPU architecture spoofing as a substitute for supported drivers.
 
-## What was physically tested for v0.2.0
+## Quantized weights in v0.3.0
+
+Both `auto-200m-2-int4` and `auto-200m-2-int8` use portable PyTorch operations on the same supported backends.
+They need no bitsandbytes, torchao, Triton, GPU compiler, or downloaded model code. CPU/MPS compute in FP32;
+CUDA/ROCm use BF16 where natively supported, otherwise FP32. Packed weights remain integers on all devices.
+This is weight-only quantization: activations and attention are floating point, so long-context memory is not
+reduced by the same ratio as the 77 MB/150 MB downloads.
+
+The [v0.3.0 report](verification/v0.3.0/README.md) records actual CPU, MPS and CUDA measurements through 65,536
+tokens, full CUDA benchmark results, and the forced-math attention fallback. CI runs both published quants on
+Linux, Windows and macOS CPUs, including the minimum supported PyTorch version. ROCm and older GPUs remain
+framework-supported paths without direct hardware measurements for this release.
+
+## Previous v0.2.0 hardware measurements
 
 The same 24 authored tool probes, plus review for missing and oversized context, for both models:
 

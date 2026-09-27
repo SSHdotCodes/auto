@@ -9,7 +9,7 @@
 
 [Website](https://auto.ssh.codes) · Models: [auto-0.4b-2](https://huggingface.co/ProCreations/auto-0.4b-2), [auto-200m-2](https://huggingface.co/ProCreations/auto-200m-2) · [Compatibility](docs/compatibility.md) · [Agent integrations](docs/agents.md)
 
-Auto checks a proposed tool call against the user's request and the agent's tool history. A ModernBERT classifier runs on your computer; prompts stay local. Model files download during installation, then inference works offline. Two models are available: **auto-0.4b-2** (395.8M parameters, the default) and the smaller, faster **auto-200m-2** (149.6M). Both read up to 65,536 tokens.
+Auto checks a proposed tool call against the user's request and the agent's tool history. A ModernBERT classifier runs on your computer; prompts stay local. Model files download during installation, then inference works offline. Four weight variants are available: **auto-0.4b-2** (395.8M parameters, the default) and the smaller, faster **auto-200m-2** (149.6M). Both read up to 65,536 tokens. The 200M model also comes in int8 (150 MB) and int4 (77 MB), with packed weights on CPU, Apple MPS, NVIDIA CUDA, and AMD ROCm.
 
 ## Install
 
@@ -32,7 +32,7 @@ Prefer reviewing scripts first? Download [install.sh](scripts/install.sh), [inst
 Existing Python environment:
 
 ```sh
-python -m pip install 'auto-local @ git+https://github.com/SSHDotCodes/auto@v0.2.0'
+python -m pip install 'auto-local @ git+https://github.com/SSHDotCodes/auto@v0.3.0'
 auto install pi                     # or: auto install pi --model auto-200m-2
 ```
 
@@ -64,6 +64,36 @@ auto uninstall pi                   # remove adapter; retain downloaded model
 ```
 
 The default device is `auto`: usable CUDA/ROCm, then Apple MPS, then CPU. If the optional FlashAttention kernel cannot load, Auto uses its portable attention on the same GPU; other GPU initialization failures fall back to CPU where possible. `auto doctor` reports the device and attention actually used. No FlashAttention compilation is required. For optional FlashAttention, install this repository with its `flash` extra in the same Python environment, run `auto configure --attention flash` on a compatible NVIDIA system, then `auto download` to fetch the pinned kernel.
+
+### Quantized models (v0.3.0)
+
+```sh
+auto configure --model auto-200m-2-int4   # or auto-200m-2-int8
+auto download
+auto start
+auto doctor
+```
+
+For a new installation, add `--model auto-200m-2-int4` to the shell installer, or
+`-Model auto-200m-2-int4` in PowerShell. Both quant names work in all installers and `auto install`.
+The default remains auto-0.4b-2; upgrading preserves your model choice.
+
+| Variant | Weights download | Published benchmark | False approve / false deny |
+|---|---:|---:|---:|
+| [auto-200m-2-int8](https://huggingface.co/ProCreations/auto-200m-2-int8) | 150 MB | 2,890/3,000 (96.33%) | 53 / 57 |
+| [auto-200m-2-int4](https://huggingface.co/ProCreations/auto-200m-2-int4) | 77 MB | 2,884/3,000 (96.13%) | 60 / 56 |
+
+The runtime reads the pinned `auto-quant-v1` safetensors locally, without executing downloaded Python or
+requantizing the weights. Integers stay packed in memory. Only the current linear weight is expanded for a
+matrix multiply; the current MLP reuses its two expanded weights across token chunks, then releases them.
+Embedding lookups are chunked too. There is no full-model floating-point cache. `auto doctor` reports
+`quantization`, compute dtype, device, attention path, and any fallback.
+
+Quantization saves weight storage, not activation storage. All variants use the same exact bounded-memory
+attention and keep the complete context. Long-context memory remains linear, while global attention work
+still grows quadratically. Portable floating-point matrix multiplies keep these formats usable on every
+supported backend; int4 is not promised to outrun int8 or BF16 on every device. See the
+[v0.3.0 measurements and limits](docs/verification/v0.3.0/README.md).
 
 ### Long contexts
 

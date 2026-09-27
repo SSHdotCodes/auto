@@ -19,6 +19,20 @@ MODELS = {
         "parameters": "149.6M",
         "download": "about 0.3 GB",
     },
+    "auto-200m-2-int4": {
+        "id": "ProCreations/auto-200m-2-int4",
+        "revision": "b907c818cb83fdc5b8c1343ed66db0b155c1e7fb",
+        "parameters": "149.6M",
+        "download": "about 77 MB",
+        "bits": 4,
+    },
+    "auto-200m-2-int8": {
+        "id": "ProCreations/auto-200m-2-int8",
+        "revision": "2501a22901e8cc520c746a86f3f9d04f7feaaefb",
+        "parameters": "149.6M",
+        "download": "about 150 MB",
+        "bits": 8,
+    },
 }
 DEFAULT_MODEL = "auto-0.4b-2"
 MODEL_ID = MODELS[DEFAULT_MODEL]["id"]
