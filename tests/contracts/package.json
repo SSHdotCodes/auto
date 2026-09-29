@@ -5,6 +5,6 @@
   "dependencies": {
     "@earendil-works/pi-coding-agent": "0.87.1",
     "@opencode-ai/plugin": "1.18.30",
-    "typescript": "5.9.3"
+    "typescript": "7.0.2"
   }
 }
