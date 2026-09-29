@@ -4,7 +4,7 @@
   "type": "module",
   "dependencies": {
     "@earendil-works/pi-coding-agent": "0.87.1",
-    "@opencode-ai/plugin": "1.18.30",
+    "@opencode-ai/plugin": "1.18.32",
     "typescript": "5.9.3"
   }
 }
