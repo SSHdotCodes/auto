@@ -19,7 +19,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = ["pytest>=8,<10", "ruff>=0.12,<1", "build>=1,<2", "psutil>=5,<8"]
 # Transformers 5.16.1 accepts only kernels 0.16.x for hub attention kernels.
-flash = ["kernels>=0.16,<0.17"]
+flash = ["kernels>=0.16,<0.18"]
 
 [project.scripts]
 auto = "auto_gate.cli:main"
