@@ -49,6 +49,10 @@ test("chart controls preserve the metric, denominator, and zero-based axis", asy
 }) => {
   await page.goto("/#benchmarks");
   await page.locator('[data-metric="false_approve"]').click();
+  await expect(page.locator('[data-metric="false_approve"]')).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
   await expect(page.locator("#metric-title")).toContainText("Lower is better");
   await expect(page.locator("#chart")).toHaveAttribute(
     "aria-label",
@@ -58,11 +62,19 @@ test("chart controls preserve the metric, denominator, and zero-based axis", asy
   await expect(page.locator(".chart-axis span").last()).toHaveText("10%");
   await expect(page.locator("#metric-description")).toContainText("1,401");
   await page.locator('[data-metric="false_deny"]').click();
+  await expect(page.locator('[data-metric="false_deny"]')).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
   await expect(page.locator("#chart")).toHaveAttribute(
     "aria-label",
     /auto-0.4b-2 3.31 percent/,
   );
   await page.locator('[data-metric="accuracy"]').click();
+  await expect(page.locator('[data-metric="accuracy"]')).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
   await expect(page.locator("#chart")).toHaveAttribute(
     "aria-label",
     /auto-0.4b-2 96.77 percent/,
