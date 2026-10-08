@@ -1,0 +1,82 @@
+{
+  "runtime": "Auto v0.1.0 (git tag v0.1.0), auto-0.4b-2 revision 456e153d, FP32",
+  "machine": "Apple M4 Max, macOS 27, PyTorch 2.13.0",
+  "method": "One forward pass per fresh process on synthetic token ids; memory is the peak above the loaded model (process RSS on CPU; Metal driver allocation on MPS).",
+  "results": [
+    {
+      "device": "cpu",
+      "tokens": 2048,
+      "seconds": 0.8,
+      "rss_gb_over_loaded": 0.17,
+      "finite": true
+    },
+    {
+      "device": "cpu",
+      "tokens": 8192,
+      "seconds": 5.71,
+      "rss_gb_over_loaded": 0.64,
+      "finite": true
+    },
+    {
+      "device": "cpu",
+      "tokens": 16384,
+      "seconds": 18.42,
+      "rss_gb_over_loaded": 1.25,
+      "finite": true
+    },
+    {
+      "device": "cpu",
+      "tokens": 32768,
+      "seconds": 114.45,
+      "rss_gb_over_loaded": 2.48,
+      "finite": true
+    },
+    {
+      "device": "cpu",
+      "tokens": 65536,
+      "seconds": 810.15,
+      "rss_gb_over_loaded": 4.66,
+      "finite": true
+    },
+    {
+      "device": "mps",
+      "tokens": 2048,
+      "seconds": 0.47,
+      "accelerator_gb_over_loaded": 0.02,
+      "rss_gb_over_loaded": 0.1,
+      "finite": true
+    },
+    {
+      "device": "mps",
+      "tokens": 8192,
+      "seconds": 2.32,
+      "accelerator_gb_over_loaded": 0.04,
+      "rss_gb_over_loaded": 0.13,
+      "finite": true
+    },
+    {
+      "device": "mps",
+      "tokens": 16384,
+      "seconds": 10.02,
+      "accelerator_gb_over_loaded": 1.08,
+      "rss_gb_over_loaded": 0.23,
+      "finite": true
+    },
+    {
+      "device": "mps",
+      "tokens": 32768,
+      "seconds": 69.31,
+      "accelerator_gb_over_loaded": 1.81,
+      "rss_gb_over_loaded": 0.63,
+      "finite": true
+    },
+    {
+      "device": "mps",
+      "tokens": 65536,
+      "seconds": 366.34,
+      "accelerator_gb_over_loaded": 12.36,
+      "rss_gb_over_loaded": 2.4,
+      "finite": true
+    }
+  ]
+}

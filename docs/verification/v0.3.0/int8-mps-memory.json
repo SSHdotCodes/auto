@@ -1,0 +1,125 @@
+{
+  "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
+  "processor": "arm",
+  "python": "3.13.14",
+  "torch": "2.13.0",
+  "budget_mb_override": null,
+  "method": "One forward pass per fresh process on synthetic token ids; memory is the peak above the loaded model.",
+  "results": [
+    {
+      "device": "mps",
+      "model": "auto-200m-2-int8",
+      "tokens": 2048,
+      "seconds": 0.1349,
+      "runtime": {
+        "device": "mps",
+        "backend": "mps",
+        "attention": "chunked",
+        "dtype": "torch.float32",
+        "quantization": "int8",
+        "max_tokens": 65536,
+        "model": "ProCreations/auto-200m-2-int8",
+        "revision": "2501a22901e8cc520c746a86f3f9d04f7feaaefb",
+        "fallback": null
+      },
+      "loaded_rss_gb": 0.466,
+      "loaded_accelerator_gb": 1.048,
+      "attention": "chunked",
+      "finite": true,
+      "accelerator_gb_over_loaded": 0.0,
+      "rss_gb_over_loaded": 0.0
+    },
+    {
+      "device": "mps",
+      "model": "auto-200m-2-int8",
+      "tokens": 8192,
+      "seconds": 0.528,
+      "runtime": {
+        "device": "mps",
+        "backend": "mps",
+        "attention": "chunked",
+        "dtype": "torch.float32",
+        "quantization": "int8",
+        "max_tokens": 65536,
+        "model": "ProCreations/auto-200m-2-int8",
+        "revision": "2501a22901e8cc520c746a86f3f9d04f7feaaefb",
+        "fallback": null
+      },
+      "loaded_rss_gb": 0.466,
+      "loaded_accelerator_gb": 1.048,
+      "attention": "chunked",
+      "finite": true,
+      "accelerator_gb_over_loaded": 0.0,
+      "rss_gb_over_loaded": 0.01
+    },
+    {
+      "device": "mps",
+      "model": "auto-200m-2-int8",
+      "tokens": 16384,
+      "seconds": 1.5322,
+      "runtime": {
+        "device": "mps",
+        "backend": "mps",
+        "attention": "chunked",
+        "dtype": "torch.float32",
+        "quantization": "int8",
+        "max_tokens": 65536,
+        "model": "ProCreations/auto-200m-2-int8",
+        "revision": "2501a22901e8cc520c746a86f3f9d04f7feaaefb",
+        "fallback": null
+      },
+      "loaded_rss_gb": 0.461,
+      "loaded_accelerator_gb": 1.048,
+      "attention": "chunked",
+      "finite": true,
+      "accelerator_gb_over_loaded": 0.0,
+      "rss_gb_over_loaded": 0.01
+    },
+    {
+      "device": "mps",
+      "model": "auto-200m-2-int8",
+      "tokens": 32768,
+      "seconds": 5.3907,
+      "runtime": {
+        "device": "mps",
+        "backend": "mps",
+        "attention": "chunked",
+        "dtype": "torch.float32",
+        "quantization": "int8",
+        "max_tokens": 65536,
+        "model": "ProCreations/auto-200m-2-int8",
+        "revision": "2501a22901e8cc520c746a86f3f9d04f7feaaefb",
+        "fallback": null
+      },
+      "loaded_rss_gb": 0.46,
+      "loaded_accelerator_gb": 1.048,
+      "attention": "chunked",
+      "finite": true,
+      "accelerator_gb_over_loaded": 1.0,
+      "rss_gb_over_loaded": 0.01
+    },
+    {
+      "device": "mps",
+      "model": "auto-200m-2-int8",
+      "tokens": 65536,
+      "seconds": 24.6564,
+      "runtime": {
+        "device": "mps",
+        "backend": "mps",
+        "attention": "chunked",
+        "dtype": "torch.float32",
+        "quantization": "int8",
+        "max_tokens": 65536,
+        "model": "ProCreations/auto-200m-2-int8",
+        "revision": "2501a22901e8cc520c746a86f3f9d04f7feaaefb",
+        "fallback": null
+      },
+      "loaded_rss_gb": 0.464,
+      "loaded_accelerator_gb": 1.048,
+      "attention": "chunked",
+      "finite": true,
+      "accelerator_gb_over_loaded": 1.66,
+      "rss_gb_over_loaded": 0.02
+    }
+  ]
+}

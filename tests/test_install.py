@@ -1,4 +1,7 @@
 import importlib.util
+import json
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -54,3 +57,22 @@ def test_refuse_to_overwrite_an_unrelated_plugin(tmp_path, monkeypatch):
     with pytest.raises(ValueError, match="Refusing"):
         install_agent("pi", tmp_path / "pi")
     assert file.read_text() == "// existing user code"
+
+
+@pytest.mark.parametrize("model", ["auto-200m-2-int4", "auto-200m-2-int8"])
+def test_bootstrap_accepts_quantized_models(model):
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(Path(__file__).parents[1] / "scripts/install.py"),
+            "--model",
+            model,
+            "--backend",
+            "cpu",
+            "--plan",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert json.loads(result.stdout)["model"] == model

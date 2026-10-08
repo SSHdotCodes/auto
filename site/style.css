@@ -1005,7 +1005,7 @@ pre {
 }
 .model-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 18px;
 }
 .model-card {
@@ -1150,6 +1150,9 @@ footer > div {
 @media (max-width: 1050px) {
   .hero {
     min-height: 730px;
+  }
+  .model-grid {
+    grid-template-columns: 1fr 1fr;
   }
   .stats {
     gap: 20px;

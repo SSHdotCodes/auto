@@ -1,0 +1,55 @@
+{
+  "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
+  "processor": "arm",
+  "python": "3.13.14",
+  "torch": "2.13.0",
+  "budget_mb_override": null,
+  "method": "One forward pass per fresh process on synthetic token ids; memory is the peak above the loaded model.",
+  "results": [
+    {
+      "device": "cpu",
+      "model": "auto-200m-2",
+      "tokens": 2048,
+      "seconds": 0.39,
+      "attention": "chunked",
+      "finite": true,
+      "rss_gb_over_loaded": 0.08
+    },
+    {
+      "device": "cpu",
+      "model": "auto-200m-2",
+      "tokens": 8192,
+      "seconds": 1.97,
+      "attention": "chunked",
+      "finite": true,
+      "rss_gb_over_loaded": 0.34
+    },
+    {
+      "device": "cpu",
+      "model": "auto-200m-2",
+      "tokens": 16384,
+      "seconds": 6.3,
+      "attention": "chunked",
+      "finite": true,
+      "rss_gb_over_loaded": 0.64
+    },
+    {
+      "device": "cpu",
+      "model": "auto-200m-2",
+      "tokens": 32768,
+      "seconds": 22.4,
+      "attention": "chunked",
+      "finite": true,
+      "rss_gb_over_loaded": 1.1
+    },
+    {
+      "device": "cpu",
+      "model": "auto-200m-2",
+      "tokens": 65536,
+      "seconds": 80.42,
+      "attention": "chunked",
+      "finite": true,
+      "rss_gb_over_loaded": 2.21
+    }
+  ]
+}
