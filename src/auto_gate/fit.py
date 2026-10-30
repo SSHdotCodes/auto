@@ -1,8 +1,9 @@
 """Fit a long session into the classifier's context instead of refusing it (`auto configure --fit-context`).
 
 Priority, highest first: the proposed call; the first and the latest user paragraphs; the newest completed actions
-(guaranteed up to half of the remaining room); the other user paragraphs, newest first; older actions. Kept user
-paragraphs and actions stay contiguous and in order, so the model never sees a gap in the middle of what it keeps.
+(guaranteed up to half of the remaining room); the other user paragraphs, newest first; older actions that share rare
+identifiers with the call (branch names, paths, hosts, ids); then more of the newest actions. Everything kept stays
+in its original order.
 If the call plus the first and latest user paragraphs cannot fit, nothing is trimmed and the caller returns review.
 
 The same policy runs twice: by characters in the client, so huge sessions stay under the local request-size limit,
@@ -10,6 +11,8 @@ and by exact tokens in the daemon. Standard library only.
 """
 
 import json
+import math
+import re
 
 SEPARATOR = "\n\n"  # adapters join user messages with a blank line; paragraphs are the trimming unit
 ELISION = "\n[... {} characters omitted by Auto to fit its context budget ...]\n"
@@ -36,6 +39,74 @@ def shorten(value, keep_chars):
 
 def elide(action, keep_chars):
     return {**action, "result": shorten(text(action.get("result", "")), keep_chars)}
+
+
+IDENTIFIER = re.compile(r"[A-Za-z0-9_][A-Za-z0-9_.:@/~+-]{2,}")
+
+
+def identifiers(value):
+    """Distinctive tokens: names, paths, branches, hosts, ids, plus their separator-delimited parts."""
+    found = set()
+    for match in IDENTIFIER.findall(value):
+        found.add(match.lower())
+        found.update(part.lower() for part in re.split(r"[/.:@~+-]", match) if len(part) >= 3)
+    return found
+
+
+def relevance(actions, call):
+    """Score each action by the rare identifiers it shares with the proposed call (inverse document frequency).
+
+    Evidence that decides a call (the branch is unmerged, the host is production, the page said to send the key)
+    usually names what the call names. Identifiers found in many actions carry no signal."""
+    target = identifiers(text(call or {}))
+    if not target or not actions:
+        return [0.0] * len(actions)
+    seen = [identifiers(action_text(a)) & target for a in actions]
+    frequency = {}
+    for tokens in seen:
+        for token in tokens:
+            frequency[token] = frequency.get(token, 0) + 1
+    limit = max(2, len(actions) // 5)
+    weight = {t: math.log((len(actions) + 1) / (n + 1)) + 1 for t, n in frequency.items() if n <= limit}
+    return [sum(weight.get(t, 0.0) for t in tokens) for tokens in seen]
+
+
+def select_history(actions, action_cost, room, max_actions, call, cost):
+    """Newest actions (up to half the room), then older actions that share rare identifiers with the call, then
+    more of the newest. Returned in their original order. The newest action alone is elided if it cannot fit."""
+    if not actions:
+        return [], False
+    cap = len(actions) if max_actions is None else max_actions
+    chosen, used, start = set(), 0, len(actions)
+    while start > 0 and len(chosen) < cap and used + action_cost(start - 1) <= room // 2:
+        start -= 1
+        chosen.add(start)
+        used += action_cost(start)
+    scores = relevance(actions[:start], call)
+    for i in sorted(range(start), key=lambda i: (-scores[i], -i)):
+        if scores[i] <= 0 or len(chosen) >= cap:
+            break
+        if used + action_cost(i) <= room:
+            chosen.add(i)
+            used += action_cost(i)
+    while start > 0 and len(chosen) < cap:
+        start -= 1
+        if start in chosen:
+            continue
+        if used + action_cost(start) > room:
+            break
+        chosen.add(start)
+        used += action_cost(start)
+    if chosen:
+        return [actions[i] for i in sorted(chosen)], False
+    last = actions[-1]
+    spare = room - cost(action_text({**last, "result": ""})) - 32
+    if spare <= 64:
+        return [], False
+    # The newest action alone is too long (say, a huge file read): keep its start and end.
+    result = text(last.get("result", ""))
+    keep_chars = max(0, int(len(result) * spare / max(1, action_cost(len(actions) - 1))) - 80)
+    return [elide(last, keep_chars)], True
 
 
 def fit(payload, cost, budget, base, user_cap=None, max_actions=None):
@@ -85,21 +156,7 @@ def fit(payload, cost, budget, base, user_cap=None, max_actions=None):
         kept_middle.insert(0, paragraph)
         used += size
     history_room = room - used
-    kept, used_history, elided = [], 0, False
-    for i in reversed(range(len(actions))):
-        if max_actions is not None and len(kept) >= max_actions:
-            break
-        if used_history + action_cost(i) > history_room:
-            spare = history_room - used_history - cost(action_text({**actions[i], "result": ""})) - 32
-            if not kept and spare > 64:
-                # The newest action alone is too long (say, a huge file read): keep its start and end.
-                result = text(actions[i].get("result", ""))
-                keep_chars = max(0, int(len(result) * spare / max(1, action_cost(i))) - 80)
-                kept.insert(0, elide(actions[i], keep_chars))
-                elided = True
-            break
-        kept.insert(0, actions[i])
-        used_history += action_cost(i)
+    kept, elided = select_history(actions, action_cost, history_room, max_actions, payload.get("call"), cost)
     fitted = {
         **payload,
         "user_request": SEPARATOR.join([*first, *kept_middle, latest]),

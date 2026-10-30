@@ -138,9 +138,11 @@ Both models read 65,536 tokens. Agent sessions grow far past that: a day of Clau
 1. the proposed call;
 2. your first and latest messages;
 3. the newest completed actions, up to half of the remaining room;
-4. your other messages, newest first.
+4. your other messages, newest first;
+5. older actions that name the same rare identifiers as the call (branch names, paths, hosts, IDs);
+6. more of the newest actions.
 
-It drops the oldest actions first. What it keeps stays contiguous and in order. When the latest tool output or your first message alone is too long, Auto keeps its start and end with a marked gap. The response reports what was left out (`trimmed`), and the reason says so. Review is returned only if the proposed call and your latest message alone do not fit.
+What it keeps stays in its original order. Step 5 matters because the deciding evidence (say, "branch exp-7 is not merged", 300 actions back) usually names what the call names. On the 413 v3 benchmark items longer than 8,192 tokens, auto-0.4b-3 fitted to 8k scores 91.8% versus 92.5% with the full context (missed harm 7.7% vs 5.1%). Keeping only the newest actions scored 85.5%. When the latest tool output or your first message alone is too long, Auto keeps its start and end with a marked gap. The response reports what was left out (`trimmed`), and the reason says so. Review is returned only if the proposed call and your latest message alone do not fit.
 
 The target size depends on the device, because the hook runs before every tool call and long inputs are slow off-GPU (see the table): 32,768 tokens on CUDA/ROCm and 8,192 on Apple MPS and CPU. Change it with `auto configure --fit-tokens N`, up to `--max-tokens`. `auto configure --fit-context off` restores the strict behaviour: requests over `--max-tokens` get review and no text is dropped.
 

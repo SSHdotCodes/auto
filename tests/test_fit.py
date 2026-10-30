@@ -111,3 +111,15 @@ def test_oversized_first_message_is_shortened_latest_kept_whole():
     assert latest == "latest message" and trimmed["elided_first_message"]
     assert first.startswith("START") and first.endswith("END") and len(first) < 1_200
     assert fitted["history"]  # history still has room
+
+
+def test_old_evidence_naming_the_call_target_is_kept():
+    history = actions(200, size=40)
+    history[30] = {"tool": "git", "args": "branch -r --merged", "result": "origin/exp-sweep-07 (not merged)"}
+    payload = request(["Delete the merged experiment branches."], history)
+    payload["call"] = {"tool": "bash", "args": {"command": "git push origin --delete exp-sweep-07"}}
+    fitted, trimmed = fit(payload, len, 3_000, 0)
+    kept = fitted["history"]
+    assert history[30] in kept and kept[-1] == history[-1]  # the deciding old action and the newest
+    assert kept == sorted(kept, key=history.index)  # original order
+    assert trimmed["actions"] == 200 - len(kept)

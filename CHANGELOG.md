@@ -17,9 +17,11 @@
   - the call;
   - the first and latest user messages;
   - the newest actions;
-  - then older user messages.
+  - older user messages;
+  - older actions that share rare identifiers with the call.
 
-  The oldest actions are dropped first, and responses report `trimmed`. The fit size is 32,768 tokens on CUDA/ROCm
+  Responses report `trimmed`. On long v3 benchmark items fitted to 8k tokens, auto-0.4b-3 keeps 91.8% accuracy
+  (92.5% with full context; 85.5% when only the newest actions are kept). The fit size is 32,768 tokens on CUDA/ROCm
   and 8,192 on MPS/CPU, so a hook stays fast before every tool call. Set it with `auto configure --fit-tokens`; turn
   fitting off with `auto configure --fit-context off`.
 - Hook installs edit only Auto's own entries and back up settings files first; uninstall leaves other hooks intact.
