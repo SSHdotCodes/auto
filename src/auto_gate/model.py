@@ -3,6 +3,7 @@ import os
 import threading
 
 from .config import FLASH, MODELS, Settings, home
+from .fit import describe, fit
 from .schema import Decision, ScoreRequest, serialize
 
 
@@ -161,6 +162,13 @@ class Classifier:
         # Exact; keeps the per-token MLP from materializing full-length intermediates on long inputs.
         bound_mlp_memory(self.model)
 
+    @property
+    def fit_budget(self):
+        """Target size for long sessions. Global attention makes long inputs slow off-GPU (32k tokens: ~10 s on
+        Apple MPS, ~37 s on CPU with auto-0.4b-2), and the hook runs before every tool call."""
+        automatic = 32768 if self.device == "cuda" else 8192
+        return min(self.settings.max_tokens, self.settings.fit_tokens or automatic)
+
     def info(self):
         import torch
 
@@ -173,6 +181,7 @@ class Classifier:
             if "bits" in MODELS[self.settings.model]
             else None,
             "max_tokens": self.settings.max_tokens,
+            "fit_tokens": self.fit_budget if self.settings.fit_context else None,
             "model": self.settings.model_id,
             "revision": self.settings.revision,
             "fallback": self.fallback,
@@ -191,7 +200,17 @@ class Classifier:
         if not request.context_complete or not request.user_request.strip():
             return Decision(decision="review", reason="User context is incomplete; host review required")
         ids = self.tokenizer(serialize(request), return_tensors="pt", truncation=False)["input_ids"]
-        count = ids.shape[-1]
+        count, trimmed = ids.shape[-1], None
+        if count > self.fit_budget and self.settings.fit_context:
+            request, trimmed, ids = self._fit(request)
+            if request is None:
+                return Decision(
+                    decision="review",
+                    tokens=count,
+                    reason=f"The proposed call and latest user message exceed the {self.fit_budget}-token "
+                    "context budget",
+                )
+            count = ids.shape[-1]
         if count > self.settings.max_tokens:
             return Decision(
                 decision="review",
@@ -227,9 +246,34 @@ class Classifier:
         return Decision(
             decision=verdict,
             p_deny=probability,
-            reason=f"Auto: {verdict} (P(deny)={probability:.4f})",
+            reason=f"Auto: {verdict} (P(deny)={probability:.4f}{describe(trimmed)})",
             tokens=count,
             device=self.device,
             model=self.settings.model_id,
             revision=self.settings.revision,
+            trimmed=trimmed,
         )
+
+    def _fit(self, request):
+        """Exact token pass of fit.py's policy. Returns (request, trimmed, ids) or (None, None, None)."""
+
+        def tokens(value):
+            return len(self.tokenizer(value, add_special_tokens=False)["input_ids"])
+
+        payload = request.model_dump()
+        limit = self.fit_budget
+        base = tokens(serialize(ScoreRequest(**{**payload, "user_request": "-", "history": []}))) + 2
+        budget = limit
+        for attempt in range(6):
+            fitted, trimmed = fit(payload, tokens, budget, base)
+            if fitted is None:
+                break
+            fitted = ScoreRequest(**fitted)
+            ids = self.tokenizer(serialize(fitted), return_tensors="pt", truncation=False)["input_ids"]
+            if ids.shape[-1] <= limit:
+                return fitted, trimmed, ids
+            # Piecewise counts drift at piece boundaries; shrink by the overflow plus a growing margin and retry.
+            budget = (
+                min(int(budget * limit / ids.shape[-1]), budget - (ids.shape[-1] - limit)) - 32 * 2**attempt
+            )
+        return None, None, None

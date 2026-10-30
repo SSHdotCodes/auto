@@ -65,6 +65,10 @@ class Settings:
     threshold: float = 0.5
     timeout: float = 120.0
     model: str = DEFAULT_MODEL
+    # Over-budget sessions: trim the oldest context to fit (fit.py) instead of returning review, down to
+    # `fit_tokens`; 0 picks a size that stays fast per tool call on the active device (see Classifier.fit_budget).
+    fit_context: bool = True
+    fit_tokens: int = 0
 
     @property
     def model_id(self) -> str:
@@ -83,6 +87,10 @@ class Settings:
             raise ValueError("attention must be chunked or flash")
         if not 128 <= self.max_tokens <= 65536:
             raise ValueError("max_tokens must be between 128 and 65536")
+        if not isinstance(self.fit_context, bool):
+            raise ValueError("fit_context must be true or false")
+        if self.fit_tokens and not 512 <= self.fit_tokens <= 65536:
+            raise ValueError("fit_tokens must be 0 (automatic) or between 512 and 65536")
         if not 0 < self.threshold < 1 or not 1 <= self.timeout <= 600:
             raise ValueError("threshold must be in (0,1); timeout must be 1–600 seconds")
 
