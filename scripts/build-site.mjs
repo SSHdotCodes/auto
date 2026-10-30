@@ -13,22 +13,24 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const site = path.join(root, "site");
 await mkdir(path.join(site, "assets"), { recursive: true });
 await Promise.all([
-  sharp(path.join(site, "assets/mountain.png"))
-    .webp({ quality: 90 })
-    .toFile(path.join(site, "assets/mountain.webp")),
-  sharp(path.join(site, "assets/mountain.png"))
-    .resize({ width: 900 })
-    .webp({ quality: 86 })
-    .toFile(path.join(site, "assets/mountain-mobile.webp")),
+  // Social preview, rendered by scripts/social_images.py; the PNG source is not served.
+  sharp(path.join(site, "assets/og.png"))
+    .webp({ quality: 92 })
+    .toFile(path.join(site, "assets/og.webp")),
   ...["install.sh", "install.ps1", "install.py"].map((name) =>
     copyFile(path.join(root, "scripts", name), path.join(site, name)),
   ),
 ]);
 for (const [pkg, match, target] of [
   [
-    "@fontsource-variable/manrope",
-    "manrope-latin-wght-normal.woff2",
-    "manrope.woff2",
+    "@fontsource-variable/geist",
+    "geist-latin-wght-normal.woff2",
+    "geist.woff2",
+  ],
+  [
+    "@fontsource-variable/geist-mono",
+    "geist-mono-latin-wght-normal.woff2",
+    "geist-mono.woff2",
   ],
   [
     "@fontsource/instrument-serif",
@@ -52,4 +54,4 @@ await writeFile(
   path.join(site, "probes.json"),
   JSON.stringify(probes, null, 2) + "\n",
 );
-console.log("Built local image, fonts, installers, and probe fixtures.");
+console.log("Built social image, fonts, installers, and probe fixtures.");

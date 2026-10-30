@@ -3,7 +3,7 @@
 [![CI](https://github.com/SSHDotCodes/auto/actions/workflows/ci.yml/badge.svg)](https://github.com/SSHDotCodes/auto/actions/workflows/ci.yml)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-22543d.svg)](LICENSE)
 
-![Auto — local permission intelligence](site/assets/mountain.webp)
+![Auto — local permission intelligence](site/assets/og.webp)
 
 **Local permission intelligence for coding agents.** Works with Claude Code, Codex, Gemini CLI, Cursor, GitHub Copilot CLI, Pi, OpenCode and Hermes, plus the Claude Agent SDK, LangChain and any custom harness.
 

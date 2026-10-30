@@ -20,11 +20,15 @@ test("hero loads, assets stay local, and layout fits the viewport", async ({
   );
   await expect
     .poll(() =>
-      page
-        .locator(".hero-image img")
-        .evaluate((img) => img.complete && img.naturalWidth > 800),
+      page.evaluate(async () => {
+        await document.fonts.ready;
+        return ["Geist", "Geist Mono"].every((family) =>
+          document.fonts.check(`16px "${family}"`),
+        );
+      }),
     )
     .toBe(true);
+  await expect(page.locator(".hero-stats dd").first()).toHaveText("96.0%");
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth + 1,
@@ -125,7 +129,7 @@ test("origin serves installers, rejects private files, and reports readiness", a
 }) => {
   for (const name of ["install.sh", "install.ps1", "install.py"])
     expect((await request.get("/" + name)).ok()).toBe(true);
-  for (const name of ["serve.py", ".git/config", "assets/mountain.png"])
+  for (const name of ["serve.py", ".git/config", "assets/og.png"])
     expect((await request.get("/" + name)).status()).toBe(404);
   const result = await request.get("/healthz");
   expect(await result.json()).toMatchObject({ status: "ok", app: "auto" });
