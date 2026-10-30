@@ -12,6 +12,7 @@ import venv
 from pathlib import Path
 
 VERSION = "0.3.0"
+AGENTS = ["claude-code", "codex", "gemini", "cursor", "copilot", "pi", "opencode", "hermes"]
 BUILDS = {
     "cpu": ("2.13.0", "https://download.pytorch.org/whl/cpu"),
     "mps": ("2.13.0", None),
@@ -70,7 +71,12 @@ def install_root():
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--agent", choices=["pi", "opencode", "hermes", "all"], default="pi")
+    parser.add_argument(
+        "--agent",
+        choices=["detect", *AGENTS, "all"],
+        default="detect",
+        help="agent to connect (default: every supported agent found on this computer)",
+    )
     parser.add_argument("--backend", choices=["auto", *BUILDS], default="auto")
     parser.add_argument(
         "--model",
@@ -141,7 +147,7 @@ def main():
     constraint = root / "torch-constraint.txt"
     constraint.write_text("torch==" + version + "\n")
     subprocess.run([*pip, "--constraint", str(constraint), args.source], check=True)
-    command = [str(python), "-m", "auto_gate", "install", args.agent]
+    command = [str(python), "-m", "auto_gate", "install"] + ([] if args.agent == "detect" else [args.agent])
     if args.model:
         command += ["--model", args.model]
     if args.no_start:
@@ -157,7 +163,8 @@ def main():
                 link.unlink()
             link.symlink_to(executable)
     print(
-        f"\nInstalled. Restart {args.agent}. CLI: {executable}\nRun that executable with doctor to see your active backend."
+        f"\nInstalled. Restart your agent{'s' if args.agent in {'detect', 'all'} else ''} to load Auto. CLI: {executable}"
+        "\nRun that executable with doctor to see your active backend."
     )
 
 

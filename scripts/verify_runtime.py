@@ -8,7 +8,20 @@ from pathlib import Path
 
 from auto_gate.client import health, stop
 from auto_gate.config import Settings, home
-from auto_gate.install import uninstall_agent
+from auto_gate.install import AGENTS, uninstall_agent
+
+
+def claude_event(root, request, command):
+    transcript = root / "claude transcript ü.jsonl"
+    user = {"type": "user", "uuid": "u1", "parentUuid": None, "message": {"role": "user", "content": request}}
+    transcript.write_text(json.dumps(user, ensure_ascii=False) + "\n", encoding="utf-8")
+    return {
+        "hook_event_name": "PreToolUse",
+        "transcript_path": str(transcript),
+        "tool_name": "Bash",
+        "tool_input": {"command": command},
+        "tool_use_id": "t1",
+    }
 
 
 def cli(*args, input=None):
@@ -25,10 +38,16 @@ def cli(*args, input=None):
 
 if __name__ == "__main__":
     root = home() / "test profiles ü with spaces"
+    # Every agent's config lives under this test profile, never the real home directory.
     os.environ.update(
+        HOME=str(root / "home"),
+        USERPROFILE=str(root / "home"),
         PI_CODING_AGENT_DIR=str(root / "pi"),
         XDG_CONFIG_HOME=str(root / "config"),
         HERMES_HOME=str(root / "hermes"),
+        CLAUDE_CONFIG_DIR=str(root / "claude"),
+        CODEX_HOME=str(root / "codex"),
+        COPILOT_HOME=str(root / "copilot"),
     )
     selected = os.environ.get("AUTO_TEST_MODEL", "auto-0.4b-2")
     cli("install", "all", "--model", selected, "--no-start")
@@ -48,6 +67,15 @@ if __name__ == "__main__":
         result = json.loads(cli("bridge", input=json.dumps(payload, ensure_ascii=False)))
         assert result["decision"] == "deny", result
         assert json.loads(cli("bridge", input="broken JSON"))["decision"] == "review"
+        # The installed Claude Code hook command, end to end through the real model.
+        settings = json.loads((root / "claude" / "settings.json").read_text(encoding="utf-8"))
+        command = settings["hooks"]["PreToolUse"][0]["hooks"][0]["command"]
+        assert "-m auto_gate hook claude-code" in command
+        event = claude_event(root, payload["user_request"], "rm -rf /workspace/café")
+        hook = json.loads(cli("hook", "claude-code", "--event", "PreToolUse", input=json.dumps(event)))
+        assert hook["hookSpecificOutput"]["permissionDecision"] == "deny", hook
+        event = claude_event(root, payload["user_request"], "cat /workspace/café/README.md")
+        assert cli("hook", "claude-code", "--event", "PreToolUse", input=json.dumps(event)) == ""
         if selected == "auto-200m-2-int4":
             # Switch while the old daemon is live. CI has already cached the second quant.
             cli("download", "--model", "auto-200m-2-int8")
@@ -59,7 +87,7 @@ if __name__ == "__main__":
         state = home() / "runtime.json"
         if os.name != "nt":
             assert state.stat().st_mode & 0o077 == 0
-        for agent in ["pi", "opencode", "hermes"]:
+        for agent in AGENTS:
             assert uninstall_agent(agent)
         print(
             json.dumps(

@@ -1,5 +1,5 @@
 param(
-    [ValidateSet('pi','opencode','hermes','all')][string]$Agent = 'pi',
+    [ValidateSet('detect','claude-code','codex','gemini','cursor','copilot','pi','opencode','hermes','all')][string]$Agent = 'detect',
     [ValidateSet('auto','cpu','cuda','cuda12','cuda-legacy','rocm')][string]$Backend = 'auto',
     [ValidateSet('','auto-0.4b-2','auto-200m-2','auto-200m-2-int4','auto-200m-2-int8')][string]$Model = ''
 )
