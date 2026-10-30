@@ -94,12 +94,17 @@ auto configure --device cpu         # force CPU
 auto configure --device mps         # Apple Silicon
 auto configure --device cuda        # NVIDIA CUDA or AMD ROCm
 auto configure --model auto-200m-2  # smaller, faster model (auto download fetches it)
+auto configure --model auto-3b-3    # most accurate; needs a GPU (CUDA or Apple MPS), ~6.2 GB
 auto configure --max-tokens 65536   # the model's full context
 auto configure --fit-tokens 16384   # size long sessions are fitted to (default: automatic)
 auto uninstall claude-code          # remove one integration; retain downloaded model
 ```
 
 The default device is `auto`: usable CUDA/ROCm, then Apple MPS, then CPU. If the optional FlashAttention kernel cannot load, Auto uses its portable attention on the same GPU; other GPU initialization failures fall back to CPU where possible. `auto doctor` reports the device and attention actually used. No FlashAttention compilation is required. For optional FlashAttention, install this repository with its `flash` extra in the same Python environment, run `auto configure --attention flash` on a compatible NVIDIA system, then `auto download` to fetch the pinned kernel.
+
+### auto-3b-3 (GPU)
+
+auto-3b-3 is a 3.08B-parameter decoder classifier (SmolLM3), the most accurate Auto model. The runtime loads it in BF16 (about 6.2 GB) with PyTorch's fused causal attention, classifies from the last token, and fits long sessions like the other models. Use it with a CUDA or ROCm GPU. On an Apple M-series GPU (MPS) it runs, but slowly: a median of 0.86 s per decision on the v3 benchmark, and about 12 s for sessions fitted to 8k tokens. There, auto-0.4b-3 is the better default. On a CPU, long requests take minutes. Through the runtime on MPS, auto-3b-3 agreed with the reference scores on 299 of 300 benchmark items. To try local weights before they are published, point `AUTO_MODEL_DIR` at a folder containing `config.json`, the tokenizer and `model.safetensors`.
 
 ### Quantized models (v0.3.0)
 

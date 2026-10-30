@@ -19,6 +19,13 @@ MODELS = {
         "parameters": "149.6M",
         "download": "about 0.3 GB",
     },
+    # Decoder classifier (SmolLM3). Needs a GPU in practice: BF16 weights, about 6.2 GB of memory.
+    "auto-3b-3": {
+        "id": "ProCreations/auto-3b-3",
+        "revision": None,  # pinned when the weights are published
+        "parameters": "3.08B",
+        "download": "about 6.2 GB",
+    },
     "auto-200m-2-int4": {
         "id": "ProCreations/auto-200m-2-int4",
         "revision": "b907c818cb83fdc5b8c1343ed66db0b155c1e7fb",

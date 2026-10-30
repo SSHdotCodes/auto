@@ -182,7 +182,8 @@ def test_pins_download_only_data_and_settings_round_trip(tmp_path, monkeypatch):
         assert Settings.load() == settings
         files = model_files(settings)
         assert not any(f.endswith(".py") for f in files)
-        assert len(entry["revision"]) == 40
+        # Published models are pinned to a full commit; an unpublished entry (None) cannot download anything.
+        assert entry["revision"] is None or len(entry["revision"]) == 40
         assert ("quant_config.json" in files) == ("bits" in entry)
 
 

@@ -1,10 +1,28 @@
 import gc
+import json
 import os
 import threading
+from pathlib import Path
 
 from .config import FLASH, MODELS, Settings, home
 from .fit import describe, fit
 from .schema import Decision, ScoreRequest, serialize
+
+
+def local_model_dir():
+    """Development override: AUTO_MODEL_DIR points at a local model folder (config, tokenizer, safetensors)."""
+    path = os.environ.get("AUTO_MODEL_DIR")
+    if path and not (Path(path) / "config.json").is_file():
+        raise ValueError("AUTO_MODEL_DIR must contain config.json, the tokenizer and safetensors weights")
+    return path or None
+
+
+def require_published(settings):
+    if not settings.revision:
+        raise ValueError(
+            f"{settings.model} is not published yet. Set AUTO_MODEL_DIR to a local copy to test it."
+        )
+    return settings.revision
 
 
 def model_files(settings):
@@ -18,9 +36,11 @@ def model_files(settings):
 def download(settings: Settings):
     from huggingface_hub import snapshot_download
 
+    if local_model_dir():
+        return local_model_dir()
     path = snapshot_download(
         settings.model_id,
-        revision=settings.revision,
+        revision=require_published(settings),
         allow_patterns=model_files(settings),
         cache_dir=home() / "models",
     )
@@ -76,9 +96,9 @@ class Classifier:
         if self.device == "mps" and not torch.backends.mps.is_available():
             self.device, self.fallback = "cpu", "MPS unavailable; using CPU"
         torch.set_num_threads(max(1, min(8, os.cpu_count() or 1)))
-        self.path = snapshot_download(
+        self.path = local_model_dir() or snapshot_download(
             settings.model_id,
-            revision=settings.revision,
+            revision=require_published(settings),
             allow_patterns=model_files(settings),
             cache_dir=home() / "models",
             local_files_only=True,
@@ -86,9 +106,18 @@ class Classifier:
         self.tokenizer = AutoTokenizer.from_pretrained(
             self.path, local_files_only=True, trust_remote_code=False
         )
+        # ModernBERT encoders (auto-0.4b, auto-150m) use Auto's bounded bidirectional attention. Decoder
+        # classifiers (auto-3b, SmolLM3) use PyTorch's fused causal attention and read the last token.
+        config = json.loads((Path(self.path) / "config.json").read_text(encoding="utf-8"))
+        self.decoder = config.get("model_type") != "modernbert"
         ALL_ATTENTION_FUNCTIONS.register("auto_chunked", chunked_attention)
-        self.attention = "chunked"
-        if settings.attention == "flash" and self.device == "cuda" and not torch.version.hip:
+        self.attention = "sdpa" if self.decoder else "chunked"
+        if (
+            settings.attention == "flash"
+            and self.device == "cuda"
+            and not torch.version.hip
+            and not self.decoder
+        ):
             kernel = flash_kernel_path()
             if kernel.is_dir():
                 # kernels 0.16 cannot resolve a single-variant cached snapshot offline (huggingface_hub reports it
@@ -107,15 +136,29 @@ class Classifier:
             if self.device == "cuda" and torch.cuda.is_bf16_supported(including_emulation=False)
             else torch.float32
         )
+        if self.decoder:
+            # A 3B model in FP32 would need 12 GB; BF16 halves that on every backend (FP16 on pre-Ampere CUDA).
+            cuda_bf16 = self.device != "cuda" or torch.cuda.is_bf16_supported(including_emulation=False)
+            dtype = torch.bfloat16 if cuda_bf16 else torch.float16
         plan = [(self.device, self.attention, dtype)]
         if self.attention == "flash":
             plan.append((self.device, "chunked", dtype))
         if self.device != "cpu":
-            plan.append(("cpu", "chunked", torch.float32))
-        warmup = torch.tensor([[self.tokenizer.cls_token_id, self.tokenizer.sep_token_id]])
+            plan.append(
+                (
+                    "cpu",
+                    self.attention if self.decoder else "chunked",
+                    torch.bfloat16 if self.decoder else torch.float32,
+                )
+            )
+        warmup = (
+            self.tokenizer("Auto warm-up", return_tensors="pt")["input_ids"]
+            if self.decoder
+            else torch.tensor([[self.tokenizer.cls_token_id, self.tokenizer.sep_token_id]])
+        )
         for step, (device, attention, dtype) in enumerate(plan):
             try:
-                implementation = FLASH if attention == "flash" else "auto_chunked"
+                implementation = {"flash": FLASH, "sdpa": "sdpa"}.get(attention, "auto_chunked")
                 kernel_options = {"allow_all_kernels": True} if attention == "flash" else {}
                 bits = MODELS[settings.model].get("bits")
                 if bits:
@@ -182,14 +225,17 @@ class Classifier:
             else None,
             "max_tokens": self.settings.max_tokens,
             "fit_tokens": self.fit_budget if self.settings.fit_context else None,
-            "model": self.settings.model_id,
-            "revision": self.settings.revision,
+            "model": f"local:{self.path}" if local_model_dir() else self.settings.model_id,
+            "revision": None if local_model_dir() else self.settings.revision,
+            "architecture": "decoder" if self.decoder else "modernbert",
             "fallback": self.fallback,
         }
 
     def _forward(self, ids):
         from .attention import forward_classifier
 
+        if self.decoder:
+            return self.model(input_ids=ids).logits
         if self.attention == "chunked":
             return forward_classifier(self.model, ids)
         return self.model(input_ids=ids).logits
@@ -225,8 +271,11 @@ class Classifier:
                 if self.device == "cpu":
                     return Decision(decision="review", reason="Inference failed; host review required")
                 self.model = self.model.to("cpu", dtype=torch.float32)
-                self.device, self.attention = "cpu", "chunked"
-                self.model.set_attn_implementation("auto_chunked")
+                if not self.decoder:
+                    self.device, self.attention = "cpu", "chunked"
+                    self.model.set_attn_implementation("auto_chunked")
+                else:
+                    self.device = "cpu"
                 self.fallback = "GPU inference failed; using CPU"
                 if torch.cuda.is_available():
                     torch.cuda.empty_cache()
