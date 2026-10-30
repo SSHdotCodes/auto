@@ -86,9 +86,12 @@ def test_decoder_long_sessions_are_fitted(tiny_decoder, tmp_path, monkeypatch):
 
 
 def test_unpublished_model_explains_itself(tmp_path, monkeypatch):
+    from auto_gate import config
     from auto_gate.model import download
 
     monkeypatch.setenv("AUTO_HOME", str(tmp_path))
     monkeypatch.delenv("AUTO_MODEL_DIR", raising=False)
+    entry = {"id": "ProCreations/auto-next", "revision": None, "parameters": "-", "download": "-"}
+    monkeypatch.setitem(config.MODELS, "auto-next", entry)
     with pytest.raises(ValueError, match="not published yet"):
-        download(Settings(model="auto-3b-3"))
+        download(Settings(model="auto-next"))

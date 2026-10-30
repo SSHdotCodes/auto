@@ -7,9 +7,9 @@
 
 **Local permission intelligence for coding agents.** Works with Claude Code, Codex, Gemini CLI, Cursor, GitHub Copilot CLI, Pi, OpenCode and Hermes, plus the Claude Agent SDK, LangChain and any custom harness.
 
-[Website](https://auto.ssh.codes) · Models: [auto-0.4b-2](https://huggingface.co/ProCreations/auto-0.4b-2), [auto-200m-2](https://huggingface.co/ProCreations/auto-200m-2) · [Compatibility](docs/compatibility.md) · [Agent integrations](docs/agents.md)
+[Website](https://auto.ssh.codes) · Models: [auto-0.4b-3](https://huggingface.co/ProCreations/auto-0.4b-3), [auto-150m-3](https://huggingface.co/ProCreations/auto-150m-3), [auto-3b-3](https://huggingface.co/ProCreations/auto-3b-3) · [Compatibility](docs/compatibility.md) · [Agent integrations](docs/agents.md)
 
-Auto checks a proposed tool call against the user's request and the agent's tool history. A ModernBERT classifier runs on your computer; prompts stay local. Model files download during installation, then inference works offline. Four weight variants are available: **auto-0.4b-2** (395.8M parameters, the default) and the smaller, faster **auto-200m-2** (149.6M). Both read up to 65,536 tokens. The 200M model also comes in int8 (150 MB) and int4 (77 MB), with packed weights on CPU, Apple MPS, NVIDIA CUDA, and AMD ROCm.
+Auto checks a proposed tool call against the user's request and the agent's tool history. A small classifier runs on your computer; prompts stay local. Model files download during installation, then inference works offline. There are three v3 models: **auto-0.4b-3** (395.8M parameters, the default), the smaller, faster **auto-150m-3** (149.6M), and **auto-3b-3** (3.08B), the most accurate, for NVIDIA and AMD GPUs. All read up to 65,536 tokens. The v2 models (auto-0.4b-2, auto-200m-2 and its int8/int4 builds) remain available.
 
 ## Install
 
@@ -33,7 +33,7 @@ Existing Python environment:
 
 ```sh
 python -m pip install 'auto-local @ git+https://github.com/SSHDotCodes/auto@v0.3.0'
-auto install                        # every agent found; or: auto install claude-code codex --model auto-200m-2
+auto install                        # every agent found; or: auto install claude-code codex --model auto-150m-3
 ```
 
 For a specific GPU build, use the installer or install the appropriate [PyTorch wheel](https://pytorch.org/get-started/locally/) before this package. See the tested and supported configurations in [compatibility](docs/compatibility.md).
@@ -93,8 +93,8 @@ auto stop                           # unload the model
 auto configure --device cpu         # force CPU
 auto configure --device mps         # Apple Silicon
 auto configure --device cuda        # NVIDIA CUDA or AMD ROCm
-auto configure --model auto-200m-2  # smaller, faster model (auto download fetches it)
-auto configure --model auto-3b-3    # most accurate; needs a GPU (CUDA or Apple MPS), ~6.2 GB
+auto configure --model auto-150m-3  # smaller, faster model (auto download fetches it)
+auto configure --model auto-3b-3    # most accurate; for NVIDIA or AMD GPUs, ~6.2 GB
 auto configure --max-tokens 65536   # the model's full context
 auto configure --fit-tokens 16384   # size long sessions are fitted to (default: automatic)
 auto uninstall claude-code          # remove one integration; retain downloaded model
@@ -104,7 +104,7 @@ The default device is `auto`: usable CUDA/ROCm, then Apple MPS, then CPU. If the
 
 ### auto-3b-3 (GPU)
 
-auto-3b-3 is a 3.08B-parameter decoder classifier (SmolLM3), the most accurate Auto model. The runtime loads it in BF16 (about 6.2 GB) with PyTorch's fused causal attention, classifies from the last token, and fits long sessions like the other models. Use it with a CUDA or ROCm GPU. On an Apple M-series GPU (MPS) it runs, but slowly: a median of 0.86 s per decision on the v3 benchmark, and about 12 s for sessions fitted to 8k tokens. There, auto-0.4b-3 is the better default. On a CPU, long requests take minutes. Through the runtime on MPS, auto-3b-3 agreed with the reference scores on 299 of 300 benchmark items. To try local weights before they are published, point `AUTO_MODEL_DIR` at a folder containing `config.json`, the tokenizer and `model.safetensors`.
+auto-3b-3 is a 3.08B-parameter decoder classifier (SmolLM3), the most accurate Auto model. The runtime loads it in BF16 (about 6.2 GB) with PyTorch's fused causal attention, classifies from the last token, and fits long sessions like the other models. Use it with a CUDA or ROCm GPU. On an Apple M-series GPU (MPS) it runs, but slowly: a median of 0.86 s per decision on the v3 benchmark, and about 12 s for sessions fitted to 8k tokens. There, auto-0.4b-3 is the better default. On a CPU, long requests take minutes. Through the runtime on MPS, auto-3b-3 agreed with the reference scores on 299 of 300 benchmark items. For development, `AUTO_MODEL_DIR` loads a local model folder (`config.json`, the tokenizer and `model.safetensors`) instead of the pinned download.
 
 ### Quantized models (v0.3.0)
 
@@ -117,7 +117,7 @@ auto doctor
 
 For a new installation, add `--model auto-200m-2-int4` to the shell installer, or
 `-Model auto-200m-2-int4` in PowerShell. Both quant names work in all installers and `auto install`.
-The default remains auto-0.4b-2; upgrading preserves your model choice.
+The default is auto-0.4b-3. Upgrading keeps the model an installation already uses; to move to v3, run `auto configure --model auto-0.4b-3` and `auto download`.
 
 | Variant | Weights download | Published benchmark | False approve / false deny |
 |---|---:|---:|---:|
@@ -172,7 +172,28 @@ The local service starts on demand, binds only `127.0.0.1` on an available port,
 
 ## Measured model results
 
-Same 3,000-example Approve-or-Deny evaluation, full input lengths, threshold 0.5:
+### v3 benchmark
+
+2,948 held-out tool calls, each paired with a near-twin where one detail flips the right answer (who asked, how far the request reaches, production or staging, the exact call, or where an instruction came from). Hosted guards were prompted with the same decision rule Auto's labels follow; Auto models deny at `P(deny) >= 0.5`.
+
+![Accuracy on the v3 benchmark](https://huggingface.co/ProCreations/auto-0.4b-3/resolve/145436d5eb2bbc5d953b1d87cd141fd3f4c6e603/assets/accuracy.png)
+
+| Model | v3 accuracy | Missed harm | Over-block | Time per decision | Cost per 1M decisions |
+|---|---:|---:|---:|---:|---:|
+| **[auto-3b-3](https://huggingface.co/ProCreations/auto-3b-3)** | **96.0%** | 3.1% | 4.8% | 21 ms | \$77 |
+| DeepSeek V4.1 Flash (max reasoning) | 95.6% | 0.6% | 7.9% | 1.3 s | \$3,043 |
+| Codex auto-review (medium) | 95.5% | 4.9% | 4.1% | – | \$11,353 |
+| GLM-5.3 Flash (high reasoning) | 95.4% | 5.5% | 3.8% | 1.2 s | \$629 |
+| **[auto-0.4b-3](https://huggingface.co/ProCreations/auto-0.4b-3)** (default) | **93.1%** | 6.0% | 7.6% | 7 ms | \$23 |
+| TypeSafe Jev 1.14 | 90.2% | 12.5% | 7.3% | 136 ms | \$227 |
+| **[auto-150m-3](https://huggingface.co/ProCreations/auto-150m-3)** | **88.8%** | 9.1% | 13.1% | 5 ms | \$13 |
+| GPT-6 Luna (low reasoning) | 87.9% | 5.8% | 17.9% | – | \$395 |
+
+v2 scored 70.2% (auto-0.4b-2), 69.9% (auto-200m-2) and 72.1% (auto-3b) on this benchmark. Auto times are medians on a local RTX PRO 6000, one request at a time; hosted guards are API round trips measured unloaded (the two CLI-based guards take 12–13 s and aren't compared). Auto's cost assumes a rented RTX PRO 6000 at \$2.18/h; on a GPU you own it is about \$0.50–\$3 per million in electricity. Each model card has the full comparison with charts for quality, errors, speed and cost.
+
+### Original benchmark
+
+v3 keeps its accuracy on the original 3,000-example Approve-or-Deny benchmark: auto-3b-3 98.23%, auto-0.4b-3 97.20%, auto-150m-3 95.97%. It denies fewer authorized calls than v2 there but approves more of the harmful ones (auto-0.4b-3: 47 of 1,401, against 36 for auto-0.4b-2). The v2 results, full input lengths, threshold 0.5:
 
 | Model | Accuracy | False approve | False deny |
 |---|---:|---:|---:|

@@ -80,8 +80,16 @@ def main():
     parser.add_argument("--backend", choices=["auto", *BUILDS], default="auto")
     parser.add_argument(
         "--model",
-        choices=["auto-0.4b-2", "auto-200m-2", "auto-200m-2-int4", "auto-200m-2-int8"],
-        help="Auto model (default: auto-0.4b-2)",
+        choices=[
+            "auto-0.4b-3",
+            "auto-150m-3",
+            "auto-3b-3",
+            "auto-0.4b-2",
+            "auto-200m-2",
+            "auto-200m-2-int4",
+            "auto-200m-2-int8",
+        ],
+        help="Auto model (default: auto-0.4b-3)",
     )
     parser.add_argument(
         "--source", default=f"https://github.com/SSHDotCodes/auto/archive/refs/tags/v{VERSION}.zip"
@@ -104,7 +112,7 @@ def main():
                     "backend": backend,
                     "torch": BUILDS[backend],
                     "agent": args.agent,
-                    "model": args.model or "auto-0.4b-2",
+                    "model": args.model or "auto-0.4b-3",
                 }
             )
         )

@@ -11,7 +11,13 @@
   - GitHub Copilot CLI (`~/.copilot/hooks/auto.json`).
 
   They all run through a new `auto hook AGENT` command, so no PyTorch is loaded in the agent's process.
-- **auto-3b-3 support.** The runtime now also runs decoder classifiers (SmolLM3): BF16, fused causal attention, last-token head and the same context fitting. `auto configure --model auto-3b-3` once the weights are published; `AUTO_MODEL_DIR` loads a local copy for testing.
+- **v3 models.** [auto-0.4b-3](https://huggingface.co/ProCreations/auto-0.4b-3) is the new default, with
+  [auto-150m-3](https://huggingface.co/ProCreations/auto-150m-3) (successor to auto-200m-2) and
+  [auto-3b-3](https://huggingface.co/ProCreations/auto-3b-3) for GPUs. On the new v3 benchmark (2,948 held-out tool
+  calls in near-twin pairs) they score 93.1%, 88.8% and 96.0%, up from 70.2%, 69.9% and 72.1% for v2. Existing installations
+  keep their configured model; switch with `auto configure --model auto-0.4b-3` and `auto download`.
+- **auto-3b-3 support.** The runtime also runs decoder classifiers (SmolLM3): BF16, fused causal attention, the
+  last-token head and the same context fitting. `AUTO_MODEL_DIR` loads a local model folder for development.
 - **Frameworks:** `auto_gate.integrations` adds `check()` for custom harnesses, `claude_agent_hook` for the Claude
   Agent SDK, and `AutoMiddleware()` for LangChain v1 agents.
 - **Long sessions are fitted instead of refused.** Over-budget requests keep:

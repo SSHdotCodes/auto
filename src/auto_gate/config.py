@@ -7,6 +7,18 @@ from platformdirs import user_data_path
 
 # Pinned, verified models. Upgrade Auto to change a pin.
 MODELS = {
+    "auto-0.4b-3": {
+        "id": "ProCreations/auto-0.4b-3",
+        "revision": "145436d5eb2bbc5d953b1d87cd141fd3f4c6e603",
+        "parameters": "395.8M",
+        "download": "about 0.8 GB",
+    },
+    "auto-150m-3": {
+        "id": "ProCreations/auto-150m-3",
+        "revision": "fc5e36b8518cfafd323017ce2f1f99d6940ef75d",
+        "parameters": "149.6M",
+        "download": "about 0.3 GB",
+    },
     "auto-0.4b-2": {
         "id": "ProCreations/auto-0.4b-2",
         "revision": "456e153dad2b12db14babb1dbdc8f8ece607e80a",
@@ -22,7 +34,7 @@ MODELS = {
     # Decoder classifier (SmolLM3). Needs a GPU in practice: BF16 weights, about 6.2 GB of memory.
     "auto-3b-3": {
         "id": "ProCreations/auto-3b-3",
-        "revision": None,  # pinned when the weights are published
+        "revision": "ffc6e7b0074c842d07907ec126ee99c493c37cf9",
         "parameters": "3.08B",
         "download": "about 6.2 GB",
     },
@@ -41,7 +53,7 @@ MODELS = {
         "bits": 8,
     },
 }
-DEFAULT_MODEL = "auto-0.4b-2"
+DEFAULT_MODEL = "auto-0.4b-3"
 MODEL_ID = MODELS[DEFAULT_MODEL]["id"]
 MODEL_REVISION = MODELS[DEFAULT_MODEL]["revision"]
 FLASH = "kernels-community/flash-attn2@81fb77c12b2ad5d69380669b46739d5868614502"
