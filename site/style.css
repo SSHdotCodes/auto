@@ -794,21 +794,23 @@ pre {
   gap: 50px;
 }
 .agent-picker {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
 }
 .agent-option {
   display: flex;
+  flex-direction: column;
   text-align: left;
-  align-items: center;
-  gap: 20px;
+  align-items: flex-start;
+  gap: 8px;
   border: 1px solid #c6d1bf;
   border-radius: 4px;
   background: transparent;
-  padding: 18px 22px;
-  min-height: 83px;
+  padding: 14px 14px 13px;
+  min-height: 92px;
   width: 100%;
+  min-width: 0;
   transition: background 0.15s;
 }
 .agent-option.active {
@@ -820,13 +822,13 @@ pre {
   background: #f7faf198;
 }
 .agent-symbol {
-  font-size: 27px;
+  font-size: 21px;
   font-weight: 600;
-  width: 29px;
-  text-align: center;
+  line-height: 1;
+  min-height: 21px;
 }
 .agent-option > span:nth-child(2) {
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 600;
 }
 .agent-option small {
@@ -835,14 +837,6 @@ pre {
   color: var(--muted);
   font-weight: 400;
   margin-top: 5px;
-}
-.agent-check {
-  margin-left: auto;
-  font-size: 17px;
-  opacity: 0.35;
-}
-.active .agent-check {
-  opacity: 1;
 }
 .custom-agent {
   display: block;
@@ -1562,19 +1556,16 @@ footer > div {
     gap: 28px;
   }
   .agent-picker {
-    flex-direction: row;
-    gap: 8px;
+    gap: 6px;
   }
   .agent-option {
-    flex-direction: column;
-    gap: 8px;
+    align-items: center;
     text-align: center;
-    padding: 14px 7px;
-    flex: 1;
-    min-width: 0;
+    padding: 12px 6px;
+    min-height: 80px;
   }
   .agent-symbol {
-    font-size: 25px;
+    font-size: 19px;
   }
   .agent-option > span:nth-child(2) {
     font-size: 11px;
@@ -1582,9 +1573,6 @@ footer > div {
   .agent-option small {
     font-size: 8px;
     line-height: 1.5;
-  }
-  .agent-check {
-    display: none;
   }
   .custom-agent {
     font-size: 9px;

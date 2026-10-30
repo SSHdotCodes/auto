@@ -5,7 +5,7 @@
 
 ![Auto — local permission intelligence](site/assets/mountain.webp)
 
-**Local permission intelligence for coding agents.**
+**Local permission intelligence for coding agents.** Works with Claude Code, Codex, Gemini CLI, Cursor, GitHub Copilot CLI, Pi, OpenCode and Hermes, plus the Claude Agent SDK, LangChain and any custom harness.
 
 [Website](https://auto.ssh.codes) · Models: [auto-0.4b-2](https://huggingface.co/ProCreations/auto-0.4b-2), [auto-200m-2](https://huggingface.co/ProCreations/auto-200m-2) · [Compatibility](docs/compatibility.md) · [Agent integrations](docs/agents.md)
 
@@ -16,16 +16,16 @@ Auto checks a proposed tool call against the user's request and the agent's tool
 **macOS / Linux** (downloads uv and Python 3.13 if needed):
 
 ```sh
-curl -fsSL https://auto.ssh.codes/install.sh | sh -s -- --agent pi
+curl -fsSL https://auto.ssh.codes/install.sh | sh
 ```
 
 **Windows PowerShell**:
 
 ```powershell
-& ([scriptblock]::Create((irm https://auto.ssh.codes/install.ps1))) -Agent pi
+& ([scriptblock]::Create((irm https://auto.ssh.codes/install.ps1)))
 ```
 
-Choose `pi`, `opencode`, `hermes`, or `all`. Restart the agent after installation. The installer creates an isolated environment, selects a PyTorch build, downloads the pinned model (~0.8 GB), installs the adapter, and warms the local runtime. No sudo or administrator access is needed. For the smaller model add `--model auto-200m-2` (PowerShell: `-Model auto-200m-2`; ~0.3 GB).
+With no options, the installer connects Auto to every supported agent it finds on your computer. To pick one, add `--agent NAME` (`sh -s -- --agent claude-code`; PowerShell: `-Agent claude-code`) with `claude-code`, `codex`, `gemini`, `cursor`, `copilot`, `pi`, `opencode`, `hermes`, or `all`. Restart the agent after installation. The installer creates an isolated environment, selects a PyTorch build, downloads the pinned model (~0.8 GB), installs the adapter, and warms the local runtime. No sudo or administrator access is needed. For the smaller model add `--model auto-200m-2` (PowerShell: `-Model auto-200m-2`; ~0.3 GB).
 
 Prefer reviewing scripts first? Download [install.sh](scripts/install.sh), [install.ps1](scripts/install.ps1), and [install.py](scripts/install.py), inspect them, and run the appropriate one. The Python installer accepts `--source /path/to/this/repo` for development.
 
@@ -33,21 +33,56 @@ Existing Python environment:
 
 ```sh
 python -m pip install 'auto-local @ git+https://github.com/SSHDotCodes/auto@v0.3.0'
-auto install pi                     # or: auto install pi --model auto-200m-2
+auto install                        # every agent found; or: auto install claude-code codex --model auto-200m-2
 ```
 
 For a specific GPU build, use the installer or install the appropriate [PyTorch wheel](https://pytorch.org/get-started/locally/) before this package. See the tested and supported configurations in [compatibility](docs/compatibility.md).
 
 ## Integrations
 
-| Agent | Integration | Auto denies | Auto needs review |
-|---|---|---|---|
-| Pi | `tool_call` extension | Blocks the call | Prompts in UI; blocks in headless mode |
-| OpenCode | `tool.execute.before` plugin | Throws a blocking tool error | Blocks with an actionable message |
-| Hermes | `pre_tool_call` plugin | Returns the host's block directive | Requests Hermes's native human approval |
-| Other agents | JSON CLI / local HTTP API | Host maps the decision | Host must require review |
+| Agent | `auto install …` | Integration | Auto denies | Auto needs review |
+|---|---|---|---|---|
+| Claude Code | `claude-code` | `PreToolUse` hook in `~/.claude/settings.json` | Denies the call | Asks you (Claude Code's prompt) |
+| Codex CLI | `codex` | `PreToolUse` hook in `~/.codex/hooks.json` | Denies the call | Blocks; the agent asks you to confirm, then retries |
+| Gemini CLI | `gemini` | `BeforeTool` hook in `~/.gemini/settings.json` | Denies the call | Blocks; the agent asks you to confirm, then retries |
+| Cursor | `cursor` | `preToolUse` hook in `~/.cursor/hooks.json` | Denies the call | Blocks; the agent asks you to confirm, then retries |
+| GitHub Copilot CLI | `copilot` | `preToolUse` hook in `~/.copilot/hooks/auto.json` | Denies the call | Asks you (blocks in autopilot) |
+| Pi | `pi` | `tool_call` extension | Blocks the call | Prompts in UI; blocks in headless mode |
+| OpenCode | `opencode` | `tool.execute.before` plugin | Throws a blocking tool error | Blocks with an actionable message |
+| Hermes | `hermes` | `pre_tool_call` plugin | Returns the host's block directive | Requests Hermes's native human approval |
+| Claude Agent SDK | — | `claude_agent_hook` (Python) | Denies the call | Asks through the SDK's permission flow |
+| LangChain / LangGraph | — | `AutoMiddleware()` | Returns an error tool result | Returns an error tool result |
+| Anything else | — | `check()` in Python, `auto score`, or the local HTTP API | Your harness maps the decision | Your harness must require review |
 
-An Auto approval allows the call to proceed through the host's existing permissions. It does not erase deny rules, disable sandboxes, or automatically answer unrelated permission prompts. Adapters read the actual user request and completed tool history. Missing context, invalid responses, timeouts, or oversized context never result in an automatic approval.
+An Auto approval lets the call continue through the host's own permissions: hooks stay silent, so deny rules, sandboxes and permission prompts still apply. Cursor is the exception: it rejects a silent permission hook, so Auto answers `allow` there. Integrations read the user's actual request and the completed tool history, from the host's transcript (Claude Code, Codex) or recorded by Auto's prompt and post-tool hooks (Gemini CLI, Cursor, Copilot CLI). Missing context, invalid responses, timeouts and crashes never become an automatic approval. Per-agent details, tested versions and caveats: [agent integrations](docs/agents.md).
+
+### Frameworks and custom harnesses
+
+```python
+from auto_gate.integrations import check
+
+result = check(
+    "Clean up the merged branches. Keep main.",  # the user's own words
+    {"tool": "bash", "args": {"command": "git push origin --delete exp-7"}},
+    history=[{"tool": "bash", "args": {"command": "git branch --merged"}, "result": "exp-7\nmain"}],
+)
+if result["decision"] != "approve":  # "deny" or "review": don't run it unattended
+    ...
+
+# Claude Agent SDK
+from claude_agent_sdk import ClaudeAgentOptions, HookMatcher
+from auto_gate.integrations import claude_agent_hook
+
+options = ClaudeAgentOptions(hooks={"PreToolUse": [HookMatcher(hooks=[claude_agent_hook])]})
+
+# LangChain v1 agents
+from langchain.agents import create_agent
+from auto_gate.integrations import AutoMiddleware
+
+agent = create_agent(model, tools, middleware=[AutoMiddleware()])
+```
+
+These run in the environment where Auto is installed (`pip install auto-local` from this repository). From other languages, pipe the JSON request below to `auto score`.
 
 ## Runtime
 
@@ -60,7 +95,8 @@ auto configure --device mps         # Apple Silicon
 auto configure --device cuda        # NVIDIA CUDA or AMD ROCm
 auto configure --model auto-200m-2  # smaller, faster model (auto download fetches it)
 auto configure --max-tokens 65536   # the model's full context
-auto uninstall pi                   # remove adapter; retain downloaded model
+auto configure --fit-tokens 16384   # size long sessions are fitted to (default: automatic)
+auto uninstall claude-code          # remove one integration; retain downloaded model
 ```
 
 The default device is `auto`: usable CUDA/ROCm, then Apple MPS, then CPU. If the optional FlashAttention kernel cannot load, Auto uses its portable attention on the same GPU; other GPU initialization failures fall back to CPU where possible. `auto doctor` reports the device and attention actually used. No FlashAttention compilation is required. For optional FlashAttention, install this repository with its `flash` extra in the same Python environment, run `auto configure --attention flash` on a compatible NVIDIA system, then `auto download` to fetch the pinned kernel.
@@ -97,7 +133,16 @@ supported backend; int4 is not promised to outrun int8 or BF16 on every device. 
 
 ### Long contexts
 
-Both models read 65,536 tokens. The runtime scores up to **32,768 tokens by default** (`auto configure --max-tokens 65536` for the full window); longer inputs request review, **without truncating away instructions or evidence**.
+Both models read 65,536 tokens. Agent sessions grow far past that: a day of Claude Code is easily hundreds of thousands of tokens. So when a request is too long, Auto **fits** it rather than giving up. In priority order it keeps:
+
+1. the proposed call;
+2. your first and latest messages;
+3. the newest completed actions, up to half of the remaining room;
+4. your other messages, newest first.
+
+It drops the oldest actions first. What it keeps stays contiguous and in order. When the latest tool output or your first message alone is too long, Auto keeps its start and end with a marked gap. The response reports what was left out (`trimmed`), and the reason says so. Review is returned only if the proposed call and your latest message alone do not fit.
+
+The target size depends on the device, because the hook runs before every tool call and long inputs are slow off-GPU (see the table): 32,768 tokens on CUDA/ROCm and 8,192 on Apple MPS and CPU. Change it with `auto configure --fit-tokens N`, up to `--max-tokens`. `auto configure --fit-context off` restores the strict behaviour: requests over `--max-tokens` get review and no text is dropped.
 
 Where FlashAttention is not available (CPU, Apple MPS, ROCm, older NVIDIA GPUs, Windows), Auto computes ModernBERT's exact attention without ever allocating an N×N score matrix or mask: global layers use PyTorch's fused attention kernels, or query blocks with a fixed memory budget where none applies; sliding-window layers attend each block of queries only to its own window; the per-token MLP runs in chunks. Memory grows linearly with context, so latency, not memory, sets the practical limit. One request through this path (the default; FlashAttention off), extra memory above the loaded model and time (Apple M4 Max in FP32, RTX PRO 6000 in BF16):
 
@@ -148,7 +193,7 @@ Save this as `request.json`:
 auto score --file request.json
 ```
 
-Responses contain `decision` (`approve`, `deny`, or `review`), `p_deny`, and `reason`. Review responses may omit the probability. The CLI only classifies text; it never executes the proposed call. See [architecture](docs/architecture.md) for protocol and integration details.
+Responses contain `decision` (`approve`, `deny`, or `review`), `p_deny`, and `reason`, plus `trimmed` when a long session was fitted. Review responses may omit the probability. The CLI only classifies text; it never executes the proposed call. See [architecture](docs/architecture.md) for protocol and integration details.
 
 ## Development and verification
 

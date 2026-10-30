@@ -12,7 +12,7 @@
     <meta property="og:title" content="Auto — Local permission intelligence" />
     <meta
       property="og:description"
-      content="Keep your agent moving. Keep your intent in view. Open models, local inference, and plugins for Pi, OpenCode, and Hermes."
+      content="Keep your agent moving. Keep your intent in view. Open models, local inference, and hooks for Claude Code, Codex, Gemini CLI, Cursor, Copilot CLI, Pi, OpenCode, and Hermes."
     />
     <meta
       property="og:image"
@@ -385,8 +385,8 @@
           <div class="install-heading">
             <h2>At home in<br /><em>your workflow.</em></h2>
             <p>
-              Pick your agent. Install once. Restart it.<br />Auto downloads the
-              model and warms the local runtime.
+              One command finds your agents. Restart them.<br />Auto downloads
+              the model and warms the local runtime.
             </p>
           </div>
           <div class="install-grid">
@@ -394,28 +394,75 @@
               <div class="agent-picker" role="group" aria-label="Coding agent">
                 <button
                   class="agent-option active"
-                  data-agent="pi"
+                  data-agent="detect"
                   aria-pressed="true"
                 >
-                  <span class="agent-symbol">π</span
-                  ><span>Pi<small>Tool-call extension</small></span
-                  ><span class="agent-check" aria-hidden="true">↗</span></button
-                ><button
+                  <span class="agent-symbol" aria-hidden="true">✳</span>
+                  <span>Every agent<small>Finds what you have</small></span>
+                </button>
+                <button
+                  class="agent-option"
+                  data-agent="claude-code"
+                  aria-pressed="false"
+                >
+                  <span class="agent-symbol" aria-hidden="true">✻</span>
+                  <span>Claude Code<small>PreToolUse hook</small></span>
+                </button>
+                <button
+                  class="agent-option"
+                  data-agent="codex"
+                  aria-pressed="false"
+                >
+                  <span class="agent-symbol" aria-hidden="true">›_</span>
+                  <span>Codex CLI<small>PreToolUse hook</small></span>
+                </button>
+                <button
+                  class="agent-option"
+                  data-agent="gemini"
+                  aria-pressed="false"
+                >
+                  <span class="agent-symbol" aria-hidden="true">✦</span>
+                  <span>Gemini CLI<small>BeforeTool hook</small></span>
+                </button>
+                <button
+                  class="agent-option"
+                  data-agent="cursor"
+                  aria-pressed="false"
+                >
+                  <span class="agent-symbol" aria-hidden="true">⌖</span>
+                  <span>Cursor<small>preToolUse hook</small></span>
+                </button>
+                <button
+                  class="agent-option"
+                  data-agent="copilot"
+                  aria-pressed="false"
+                >
+                  <span class="agent-symbol" aria-hidden="true">⌘</span>
+                  <span>Copilot CLI<small>preToolUse hook</small></span>
+                </button>
+                <button
+                  class="agent-option"
+                  data-agent="pi"
+                  aria-pressed="false"
+                >
+                  <span class="agent-symbol" aria-hidden="true">π</span>
+                  <span>Pi<small>Tool-call extension</small></span>
+                </button>
+                <button
                   class="agent-option"
                   data-agent="opencode"
                   aria-pressed="false"
                 >
-                  <span class="agent-symbol">▣</span
-                  ><span>OpenCode<small>Before-execution plugin</small></span
-                  ><span class="agent-check" aria-hidden="true">↗</span></button
-                ><button
+                  <span class="agent-symbol" aria-hidden="true">▣</span>
+                  <span>OpenCode<small>Execution plugin</small></span>
+                </button>
+                <button
                   class="agent-option"
                   data-agent="hermes"
                   aria-pressed="false"
                 >
-                  <span class="agent-symbol">h</span
-                  ><span>Hermes<small>Native permission hook</small></span
-                  ><span class="agent-check" aria-hidden="true">↗</span>
+                  <span class="agent-symbol" aria-hidden="true">h</span>
+                  <span>Hermes<small>Permission hook</small></span>
                 </button>
               </div>
               <a
@@ -443,9 +490,9 @@
               </div>
               <div class="terminal-content">
                 <p class="terminal-comment" id="install-comment">
-                  # Install Auto for Pi
+                  # Install Auto for every agent on this computer
                 </p>
-                <pre><code id="install-command">curl -fsSL https://auto.ssh.codes/install.sh | sh -s -- --agent pi</code></pre>
+                <pre><code id="install-command">curl -fsSL https://auto.ssh.codes/install.sh | sh</code></pre>
                 <button id="copy-command" class="copy-button">
                   Copy install command <span aria-hidden="true">⧉</span></button
                 ><span id="copy-status" role="status"></span>

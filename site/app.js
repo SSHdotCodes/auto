@@ -71,14 +71,30 @@ document.querySelectorAll("[data-metric]").forEach((button) =>
       metric.description;
   }),
 );
-let agent = "pi",
+let agent = "detect",
   os = "unix";
-const agents = { pi: "Pi", opencode: "OpenCode", hermes: "Hermes" };
+const agents = {
+  detect: "every agent on this computer",
+  "claude-code": "Claude Code",
+  codex: "Codex CLI",
+  gemini: "Gemini CLI",
+  cursor: "Cursor",
+  copilot: "GitHub Copilot CLI",
+  pi: "Pi",
+  opencode: "OpenCode",
+  hermes: "Hermes",
+};
 function updateInstall() {
-  document.querySelector("#install-command").textContent =
-    os === "windows"
-      ? `& ([scriptblock]::Create((irm https://auto.ssh.codes/install.ps1))) -Agent ${agent}`
-      : `curl -fsSL https://auto.ssh.codes/install.sh | sh -s -- --agent ${agent}`;
+  const windows = os === "windows";
+  const flag =
+    agent === "detect"
+      ? ""
+      : windows
+        ? ` -Agent ${agent}`
+        : ` -s -- --agent ${agent}`;
+  document.querySelector("#install-command").textContent = windows
+    ? `& ([scriptblock]::Create((irm https://auto.ssh.codes/install.ps1)))${flag}`
+    : `curl -fsSL https://auto.ssh.codes/install.sh | sh${flag}`;
   document.querySelector("#install-comment").textContent =
     `# Install Auto for ${agents[agent]}`;
   document.querySelector("#copy-status").textContent = "";

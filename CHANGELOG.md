@@ -1,5 +1,30 @@
 # Changelog
 
+## Unreleased
+
+- **More agents, one command.** `auto install` with no name connects every supported agent found on the computer,
+  and the shell/PowerShell installers do the same by default. New hook integrations:
+  - Claude Code (`PreToolUse` in `settings.json`);
+  - Codex CLI (`hooks.json`);
+  - Gemini CLI (`BeforeTool`, with prompt and result recording);
+  - Cursor (`preToolUse`, `failClosed`);
+  - GitHub Copilot CLI (`~/.copilot/hooks/auto.json`).
+
+  They all run through a new `auto hook AGENT` command, so no PyTorch is loaded in the agent's process.
+- **Frameworks:** `auto_gate.integrations` adds `check()` for custom harnesses, `claude_agent_hook` for the Claude
+  Agent SDK, and `AutoMiddleware()` for LangChain v1 agents.
+- **Long sessions are fitted instead of refused.** Over-budget requests keep:
+  - the call;
+  - the first and latest user messages;
+  - the newest actions;
+  - then older user messages.
+
+  The oldest actions are dropped first, and responses report `trimmed`. The fit size is 32,768 tokens on CUDA/ROCm
+  and 8,192 on MPS/CPU, so a hook stays fast before every tool call. Set it with `auto configure --fit-tokens`; turn
+  fitting off with `auto configure --fit-context off`.
+- Hook installs edit only Auto's own entries and back up settings files first; uninstall leaves other hooks intact.
+  A hook registered in Claude Code settings stays silent when Cursor or Copilot CLI run it with their own payloads.
+
 ## 0.3.0
 
 - Add the pinned auto-200m-2-int4 (77 MB) and auto-200m-2-int8 (150 MB) checkpoints to the CLI, shell,
