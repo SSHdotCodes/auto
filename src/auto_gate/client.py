@@ -66,19 +66,35 @@ def ensure_server():
         raise RuntimeError("Auto startup timed out; run `auto doctor` before retrying")
 
 
+# Client-side fitting keeps requests under the daemon's body limit; the daemon then fits exact tokens.
+FIT_BYTES = 1_500_000
+
+
 def score(payload):
     try:
+        from .fit import describe, merge, prefit
         from .schema import ScoreRequest
 
+        settings = Settings.load()
+        trimmed = None
+        if settings.fit_context and isinstance(payload, dict):
+            payload, trimmed = prefit(payload, FIT_BYTES, user_cap=480_000, max_actions=2048)
         payload = ScoreRequest.model_validate(payload).model_dump()
         ensure_server()
         url, headers = connection()
-        with httpx.Client(trust_env=False, timeout=Settings.load().timeout + 5) as client:
-            response = client.post(url + "/v1/score", json=payload, headers=headers)
+        body = json.dumps(payload, ensure_ascii=False, allow_nan=False).encode("utf-8")
+        headers = {**headers, "Content-Type": "application/json"}
+        with httpx.Client(trust_env=False, timeout=settings.timeout + 5) as client:
+            response = client.post(url + "/v1/score", content=body, headers=headers)
             response.raise_for_status()
             result = response.json()
         if result.get("decision") not in {"approve", "deny", "review"}:
             raise ValueError("Invalid decision")
+        if trimmed:
+            daemon = result.get("trimmed")
+            result["trimmed"] = merge(trimmed, daemon)
+            if result["decision"] != "review" and not daemon:
+                result["reason"] = result.get("reason", "") + describe(trimmed)
         return result
     except Exception:
         return {"decision": "review", "reason": "Auto unavailable or input invalid; host review required"}

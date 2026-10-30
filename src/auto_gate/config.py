@@ -7,6 +7,18 @@ from platformdirs import user_data_path
 
 # Pinned, verified models. Upgrade Auto to change a pin.
 MODELS = {
+    "auto-0.4b-3": {
+        "id": "ProCreations/auto-0.4b-3",
+        "revision": "145436d5eb2bbc5d953b1d87cd141fd3f4c6e603",
+        "parameters": "395.8M",
+        "download": "about 0.8 GB",
+    },
+    "auto-150m-3": {
+        "id": "ProCreations/auto-150m-3",
+        "revision": "fc5e36b8518cfafd323017ce2f1f99d6940ef75d",
+        "parameters": "149.6M",
+        "download": "about 0.3 GB",
+    },
     "auto-0.4b-2": {
         "id": "ProCreations/auto-0.4b-2",
         "revision": "456e153dad2b12db14babb1dbdc8f8ece607e80a",
@@ -18,6 +30,13 @@ MODELS = {
         "revision": "0bbb929f07564a22f6bd67d6624467bca6f1ab14",
         "parameters": "149.6M",
         "download": "about 0.3 GB",
+    },
+    # Decoder classifier (SmolLM3). Needs a GPU in practice: BF16 weights, about 6.2 GB of memory.
+    "auto-3b-3": {
+        "id": "ProCreations/auto-3b-3",
+        "revision": "ffc6e7b0074c842d07907ec126ee99c493c37cf9",
+        "parameters": "3.08B",
+        "download": "about 6.2 GB",
     },
     "auto-200m-2-int4": {
         "id": "ProCreations/auto-200m-2-int4",
@@ -34,7 +53,7 @@ MODELS = {
         "bits": 8,
     },
 }
-DEFAULT_MODEL = "auto-0.4b-2"
+DEFAULT_MODEL = "auto-0.4b-3"
 MODEL_ID = MODELS[DEFAULT_MODEL]["id"]
 MODEL_REVISION = MODELS[DEFAULT_MODEL]["revision"]
 FLASH = "kernels-community/flash-attn2@81fb77c12b2ad5d69380669b46739d5868614502"
@@ -65,6 +84,10 @@ class Settings:
     threshold: float = 0.5
     timeout: float = 120.0
     model: str = DEFAULT_MODEL
+    # Over-budget sessions: trim the oldest context to fit (fit.py) instead of returning review, down to
+    # `fit_tokens`; 0 picks a size that stays fast per tool call on the active device (see Classifier.fit_budget).
+    fit_context: bool = True
+    fit_tokens: int = 0
 
     @property
     def model_id(self) -> str:
@@ -83,6 +106,10 @@ class Settings:
             raise ValueError("attention must be chunked or flash")
         if not 128 <= self.max_tokens <= 65536:
             raise ValueError("max_tokens must be between 128 and 65536")
+        if not isinstance(self.fit_context, bool):
+            raise ValueError("fit_context must be true or false")
+        if self.fit_tokens and not 512 <= self.fit_tokens <= 65536:
+            raise ValueError("fit_tokens must be 0 (automatic) or between 512 and 65536")
         if not 0 < self.threshold < 1 or not 1 <= self.timeout <= 600:
             raise ValueError("threshold must be in (0,1); timeout must be 1–600 seconds")
 

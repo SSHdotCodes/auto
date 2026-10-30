@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#132024" />
+    <meta name="theme-color" content="#0b1020" />
     <title>Auto — A little intelligence. A clearer path.</title>
     <meta
       name="description"
@@ -12,7 +12,7 @@
     <meta property="og:title" content="Auto — Local permission intelligence" />
     <meta
       property="og:description"
-      content="Keep your agent moving. Keep your intent in view. Open models, local inference, and plugins for Pi, OpenCode, and Hermes."
+      content="Keep your agent moving. Keep your intent in view. Open models, local inference, and hooks for Claude Code, Codex, Gemini CLI, Cursor, Copilot CLI, Pi, OpenCode, and Hermes."
     />
     <meta
       property="og:image"
@@ -89,7 +89,7 @@
               >Bring Auto to your agent <span aria-hidden="true">↗</span></a
             ><a
               class="text-link"
-              href="https://huggingface.co/ProCreations/auto-0.4b-2"
+              href="https://huggingface.co/ProCreations/auto-0.4b-3"
               >Explore the model <span aria-hidden="true">↗</span></a
             >
           </div>
@@ -98,14 +98,14 @@
           <span>Built to run where you work.</span
           ><a href="#approach"
             >Discover Auto <span aria-hidden="true">↓</span></a
-          ><span class="hero-coordinate">LOCAL BY NATURE · v0.3.0</span>
+          ><span class="hero-coordinate">LOCAL BY NATURE · v0.4.0</span>
         </div>
       </section>
       <div class="stats wrap" aria-label="Model at a glance">
         <div>
-          <strong>96.77<span>%</span></strong>
+          <strong>93.1<span>%</span></strong>
           <p>
-            Approve-or-Deny accuracy
+            v3 benchmark accuracy
             <a href="#benchmarks" aria-label="Benchmark details">↗</a>
           </p>
         </div>
@@ -202,21 +202,23 @@
             <p class="eyebrow">02 / MEASURED PROGRESS</p>
             <a
               class="text-link"
-              href="https://huggingface.co/ProCreations/auto-0.4b-2#measured-results"
+              href="https://huggingface.co/ProCreations/auto-0.4b-3#how-it-compares"
               >Read the full evaluation ↗</a
             >
           </div>
           <div class="benchmark-heading">
-            <h2>A smaller footprint.<br />A <em>stronger</em> result.</h2>
+            <h2>
+              Level with hosted guards.<br />A <em>fraction</em> of the cost.
+            </h2>
             <p>
-              Three models. The same 3,000 examples.<br />Full input lengths. A
-              0.5 decision threshold.
+              Seven guards. The same 2,948 tool calls.<br />Each with a
+              near-twin. A 0.5 decision threshold.
             </p>
           </div>
           <div class="chart-panel">
             <div class="chart-top">
               <div>
-                <p class="micro-label">APPROVE-OR-DENY · 3,000 EXAMPLES</p>
+                <p class="micro-label">V3 BENCHMARK · 2,948 TOOL CALLS</p>
                 <h3 id="metric-title">
                   Accuracy <span>↑ Higher is better</span>
                 </h3>
@@ -239,30 +241,70 @@
               class="chart"
               id="chart"
               role="img"
-              aria-label="Accuracy: auto-0.4b 89.63 percent, auto-1b-bf16 96.60 percent, auto-0.4b-2 96.77 percent."
+              aria-label="Accuracy: auto-3b-3 96.03 percent, DeepSeek V4.1 Flash 95.59 percent, Codex auto-review 95.52 percent, GLM-5.3 Flash 95.35 percent, auto-0.4b-3 93.15 percent, auto-150m-3 88.84 percent, auto-0.4b-2 70.22 percent."
             >
-              <div class="chart-row">
-                <div class="chart-label">auto-0.4b <small>Original</small></div>
-                <div class="bar-track">
-                  <div class="bar original" style="--value: 89.6333%"></div>
+              <div class="chart-row featured">
+                <div class="chart-label">
+                  auto-3b-3 <small>v3 · 3B · GPU</small>
                 </div>
-                <strong>89.63<span>%</span></strong>
+                <div class="bar-track">
+                  <div class="bar latest" style="--value: 96.0312%"></div>
+                </div>
+                <strong>96.03<span>%</span></strong>
               </div>
               <div class="chart-row">
                 <div class="chart-label">
-                  auto-1b-bf16 <small>Reference</small>
+                  DeepSeek V4.1 Flash <small>Hosted · max reasoning</small>
                 </div>
                 <div class="bar-track">
-                  <div class="bar teacher" style="--value: 96.6%"></div>
+                  <div class="bar teacher" style="--value: 95.5902%"></div>
                 </div>
-                <strong>96.60<span>%</span></strong>
+                <strong>95.59<span>%</span></strong>
+              </div>
+              <div class="chart-row">
+                <div class="chart-label">
+                  Codex auto-review <small>Hosted · medium</small>
+                </div>
+                <div class="bar-track">
+                  <div class="bar teacher" style="--value: 95.5224%"></div>
+                </div>
+                <strong>95.52<span>%</span></strong>
+              </div>
+              <div class="chart-row">
+                <div class="chart-label">
+                  GLM-5.3 Flash <small>Hosted · high reasoning</small>
+                </div>
+                <div class="bar-track">
+                  <div class="bar teacher" style="--value: 95.3528%"></div>
+                </div>
+                <strong>95.35<span>%</span></strong>
               </div>
               <div class="chart-row featured">
-                <div class="chart-label">auto-0.4b-2 <small>Latest</small></div>
-                <div class="bar-track">
-                  <div class="bar latest" style="--value: 96.7667%"></div>
+                <div class="chart-label">
+                  auto-0.4b-3 <small>v3 · the default</small>
                 </div>
-                <strong>96.77<span>%</span></strong>
+                <div class="bar-track">
+                  <div class="bar latest" style="--value: 93.1479%"></div>
+                </div>
+                <strong>93.15<span>%</span></strong>
+              </div>
+              <div class="chart-row featured">
+                <div class="chart-label">
+                  auto-150m-3 <small>v3 · smallest</small>
+                </div>
+                <div class="bar-track">
+                  <div class="bar latest" style="--value: 88.8399%"></div>
+                </div>
+                <strong>88.84<span>%</span></strong>
+              </div>
+              <div class="chart-row">
+                <div class="chart-label">
+                  auto-0.4b-2 <small>v2 · previous default</small>
+                </div>
+                <div class="bar-track">
+                  <div class="bar original" style="--value: 70.2171%"></div>
+                </div>
+                <strong>70.22<span>%</span></strong>
               </div>
               <div class="chart-axis">
                 <span>0%</span><span>25%</span><span>50%</span><span>75%</span
@@ -274,27 +316,32 @@
               id="metric-description"
               aria-live="polite"
             >
-              Correct decisions across all 3,000 examples. Auto-0.4b-2 gets
-              2,903 right.
+              Correct decisions across all 2,948 tool calls. auto-0.4b-3 gets
+              2,746 right; auto-3b-3 gets 2,831.
             </p>
           </div>
           <div class="benchmark-extras">
             <div>
-              <strong>97.88<span>%</span></strong>
-              <p>Validation audit<br /><span>2,595 examples</span></p>
+              <strong>21<span> ms</span></strong>
+              <p>
+                auto-3b-3 per decision<br /><span
+                  >Hosted guards: 1.2–1.3 s</span
+                >
+              </p>
             </div>
             <div>
-              <strong>94.56<span>%</span></strong>
+              <strong>$77</strong>
               <p>
-                Long-context accuracy<br /><span
-                  >239 examples · 16k–64k tokens</span
+                Per million decisions<br /><span
+                  >Hosted guards: $629–$11,353</span
                 >
               </p>
             </div>
             <p>
-              The 0.17-point lead over auto-1b is five examples. These reference
-              results use BF16 and FlashAttention; they do not establish
-              identical accuracy on every local backend.
+              Differences under about one point are within noise. Auto times are
+              medians on a local RTX PRO 6000; costs assume a rented one at
+              $2.18/h. On the original 3,000-example benchmark, auto-0.4b-3
+              scores 97.20%.
             </p>
           </div>
           <details class="methodology">
@@ -303,20 +350,25 @@
             </summary>
             <div>
               <p>
-                Evaluation uses the fixed Approve-or-Deny benchmark revision
-                <code>a38b625913dd46ca9702063f1597c979e6ace34e</code>: 1,401
-                deny examples and 1,599 approve examples. False approve is the
-                fraction of deny examples approved; false deny is the fraction
-                of approve examples denied. Every graph starts at zero.
+                The v3 benchmark holds 2,948 tool calls that were never used for
+                training: 1,413 that should be denied and 1,535 that should be
+                approved. Each is paired with a near-twin where one detail flips
+                the right answer: who asked, how far the request reaches,
+                production or staging, the exact call, or where an instruction
+                came from. False approve is the share of deny calls approved;
+                false deny is the share of approve calls denied. Every graph
+                starts at zero. Hosted guards were prompted with the same
+                decision rule that Auto's training labels follow. The benchmark
+                isn't public yet.
               </p>
               <p>
-                The new model was trained with short- and long-context
-                supervised fine-tuning. Conditional distillation was skipped
-                after it exceeded the teacher on this evaluation. Because the
-                benchmark informed that choice, it is not a pristine, one-use
-                holdout. The 24 tool probes below are authored illustrations,
-                not another independent accuracy benchmark.
-                <a href="https://huggingface.co/ProCreations/auto-0.4b-2"
+                The choice between the directly trained and distilled versions
+                of auto-0.4b-3 and auto-150m-3 used this benchmark, so it is not
+                a pristine holdout for them. On the original benchmark, v3 keeps
+                its accuracy but approves more of the harmful examples than v2
+                did. The 24 tool probes below are authored illustrations, not
+                another independent accuracy benchmark.
+                <a href="https://huggingface.co/ProCreations/auto-0.4b-3"
                   >Inspect the full methodology, limitations, and raw results
                   ↗</a
                 >
@@ -385,8 +437,8 @@
           <div class="install-heading">
             <h2>At home in<br /><em>your workflow.</em></h2>
             <p>
-              Pick your agent. Install once. Restart it.<br />Auto downloads the
-              model and warms the local runtime.
+              One command finds your agents. Restart them.<br />Auto downloads
+              the model and warms the local runtime.
             </p>
           </div>
           <div class="install-grid">
@@ -394,28 +446,75 @@
               <div class="agent-picker" role="group" aria-label="Coding agent">
                 <button
                   class="agent-option active"
-                  data-agent="pi"
+                  data-agent="detect"
                   aria-pressed="true"
                 >
-                  <span class="agent-symbol">π</span
-                  ><span>Pi<small>Tool-call extension</small></span
-                  ><span class="agent-check" aria-hidden="true">↗</span></button
-                ><button
+                  <span class="agent-symbol" aria-hidden="true">✳</span>
+                  <span>Every agent<small>Finds what you have</small></span>
+                </button>
+                <button
+                  class="agent-option"
+                  data-agent="claude-code"
+                  aria-pressed="false"
+                >
+                  <span class="agent-symbol" aria-hidden="true">✻</span>
+                  <span>Claude Code<small>PreToolUse hook</small></span>
+                </button>
+                <button
+                  class="agent-option"
+                  data-agent="codex"
+                  aria-pressed="false"
+                >
+                  <span class="agent-symbol" aria-hidden="true">›_</span>
+                  <span>Codex CLI<small>PreToolUse hook</small></span>
+                </button>
+                <button
+                  class="agent-option"
+                  data-agent="gemini"
+                  aria-pressed="false"
+                >
+                  <span class="agent-symbol" aria-hidden="true">✦</span>
+                  <span>Gemini CLI<small>BeforeTool hook</small></span>
+                </button>
+                <button
+                  class="agent-option"
+                  data-agent="cursor"
+                  aria-pressed="false"
+                >
+                  <span class="agent-symbol" aria-hidden="true">⌖</span>
+                  <span>Cursor<small>preToolUse hook</small></span>
+                </button>
+                <button
+                  class="agent-option"
+                  data-agent="copilot"
+                  aria-pressed="false"
+                >
+                  <span class="agent-symbol" aria-hidden="true">⌘</span>
+                  <span>Copilot CLI<small>preToolUse hook</small></span>
+                </button>
+                <button
+                  class="agent-option"
+                  data-agent="pi"
+                  aria-pressed="false"
+                >
+                  <span class="agent-symbol" aria-hidden="true">π</span>
+                  <span>Pi<small>Tool-call extension</small></span>
+                </button>
+                <button
                   class="agent-option"
                   data-agent="opencode"
                   aria-pressed="false"
                 >
-                  <span class="agent-symbol">▣</span
-                  ><span>OpenCode<small>Before-execution plugin</small></span
-                  ><span class="agent-check" aria-hidden="true">↗</span></button
-                ><button
+                  <span class="agent-symbol" aria-hidden="true">▣</span>
+                  <span>OpenCode<small>Execution plugin</small></span>
+                </button>
+                <button
                   class="agent-option"
                   data-agent="hermes"
                   aria-pressed="false"
                 >
-                  <span class="agent-symbol">h</span
-                  ><span>Hermes<small>Native permission hook</small></span
-                  ><span class="agent-check" aria-hidden="true">↗</span>
+                  <span class="agent-symbol" aria-hidden="true">h</span>
+                  <span>Hermes<small>Permission hook</small></span>
                 </button>
               </div>
               <a
@@ -443,9 +542,9 @@
               </div>
               <div class="terminal-content">
                 <p class="terminal-comment" id="install-comment">
-                  # Install Auto for Pi
+                  # Install Auto for every agent on this computer
                 </p>
-                <pre><code id="install-command">curl -fsSL https://auto.ssh.codes/install.sh | sh -s -- --agent pi</code></pre>
+                <pre><code id="install-command">curl -fsSL https://auto.ssh.codes/install.sh | sh</code></pre>
                 <button id="copy-command" class="copy-button">
                   Copy install command <span aria-hidden="true">⧉</span></button
                 ><span id="copy-status" role="status"></span>
@@ -489,8 +588,9 @@
             GPU support depends on the device, driver, and available PyTorch
             wheel. Unsupported accelerators use CPU where possible. AMD on
             Windows uses CPU. Default budget: 32,768 tokens, up to 65,536;
-            memory grows linearly with context, even without FlashAttention. For
-            77 MB int4 weights, add
+            memory grows linearly with context, even without FlashAttention. On
+            an NVIDIA or AMD GPU, add <code>--model auto-3b-3</code> for the
+            most accurate model. For 77 MB int4 v2 weights, add
             <code>--model auto-200m-2-int4</code> (PowerShell:
             <code>-Model auto-200m-2-int4</code>); int8 is available too.
             Quantization reduces weight storage; activations still grow with
@@ -509,42 +609,53 @@
         <div class="model-grid">
           <a
             class="model-card current"
-            href="https://huggingface.co/ProCreations/auto-0.4b-2"
+            href="https://huggingface.co/ProCreations/auto-0.4b-3"
             ><span class="micro-label">THE LOCAL DEFAULT <span>↗</span></span>
-            <h3>auto-0.4b-2</h3>
+            <h3>auto-0.4b-3</h3>
             <p>
-              ModernBERT-large · 395.8M parameters<br />Full-parameter
-              supervised fine-tune
+              ModernBERT-large · 395.8M parameters<br />CPU, Apple silicon or
+              any GPU
             </p>
             <div>
-              <span>96.77% benchmark accuracy</span
+              <span>93.1% v3 benchmark accuracy</span
               ><span class="tag">Latest</span>
             </div></a
           ><a
             class="model-card"
-            href="https://huggingface.co/ProCreations/auto-200m-2"
-            ><span class="micro-label">THE SMALL ONE <span>↗</span></span>
-            <h3>auto-200m-2</h3>
-            <p>
-              ModernBERT-base · 149.6M parameters<br />Same context, up to twice
-              as fast
-            </p>
+            href="https://huggingface.co/ProCreations/auto-3b-3"
+            ><span class="micro-label">THE MOST ACCURATE <span>↗</span></span>
+            <h3>auto-3b-3</h3>
+            <p>SmolLM3 · 3.08B parameters<br />For NVIDIA and AMD GPUs</p>
             <div>
-              <span>96.33% benchmark accuracy</span><span class="tag">New</span>
+              <span>96.0% v3 benchmark accuracy</span
+              ><span class="tag">New</span>
             </div></a
+          ><a
+            class="model-card"
+            href="https://huggingface.co/ProCreations/auto-150m-3"
+            ><span class="micro-label">THE SMALL ONE <span>↗</span></span>
+            <h3>auto-150m-3</h3>
+            <p>ModernBERT-base · 149.6M parameters<br />Runs almost anywhere</p>
+            <div>
+              <span>88.8% v3 benchmark accuracy</span
+              ><span class="tag">New</span>
+            </div></a
+          ><a
+            class="model-card"
+            href="https://huggingface.co/ProCreations/auto-0.4b-2"
+            ><span class="micro-label"
+              >THE PREVIOUS DEFAULT <span>↗</span></span
+            >
+            <h3>auto-0.4b-2</h3>
+            <p>ModernBERT-large · 395.8M parameters<br />Still available</p>
+            <div><span>70.2% v3 · 97.00% original</span><span>↗</span></div></a
           ><a
             class="model-card"
             href="https://huggingface.co/ProCreations/auto-200m-2-int8"
             ><span class="micro-label">HALF-SIZE WEIGHTS <span>↗</span></span>
             <h3>auto-200m-2-int8</h3>
-            <p>
-              150 MB packed weights · 65,536-token context<br />CPU, MPS, CUDA
-              and ROCm
-            </p>
-            <div>
-              <span>96.33% published benchmark accuracy</span
-              ><span class="tag">New</span>
-            </div></a
+            <p>150 MB packed v2 weights<br />CPU, MPS, CUDA and ROCm</p>
+            <div><span>96.33% original benchmark</span><span>↗</span></div></a
           ><a
             class="model-card"
             href="https://huggingface.co/ProCreations/auto-200m-2-int4"
@@ -553,33 +664,9 @@
             >
             <h3>auto-200m-2-int4</h3>
             <p>
-              77 MB packed weights · 65,536-token context<br />Bounded-memory
-              attention on every backend
+              77 MB packed v2 weights<br />Bounded-memory attention everywhere
             </p>
-            <div>
-              <span>96.13% published benchmark accuracy</span
-              ><span class="tag">New</span>
-            </div></a
-          ><a
-            class="model-card"
-            href="https://huggingface.co/ProCreations/auto-1b-bf16"
-            ><span class="micro-label">THE 1B REFERENCE <span>↗</span></span>
-            <h3>auto-1b-bf16</h3>
-            <p>
-              The larger BF16 reference model<br />Compared on the same
-              benchmark
-            </p>
-            <div><span>96.60% benchmark accuracy</span><span>↗</span></div></a
-          ><a
-            class="model-card"
-            href="https://huggingface.co/ProCreations/auto-0.4b"
-            ><span class="micro-label">WHERE IT STARTED <span>↗</span></span>
-            <h3>auto-0.4b</h3>
-            <p>
-              The original compact Auto classifier<br />The starting checkpoint
-              for v2
-            </p>
-            <div><span>89.63% benchmark accuracy</span><span>↗</span></div></a
+            <div><span>96.13% original benchmark</span><span>↗</span></div></a
           >
         </div>
         <p class="model-note">
@@ -610,7 +697,7 @@
       </p>
       <div>
         <a href="https://github.com/SSHDotCodes/auto">Source ↗</a
-        ><a href="https://huggingface.co/ProCreations/auto-0.4b-2">Weights ↗</a
+        ><a href="https://huggingface.co/ProCreations/auto-0.4b-3">Weights ↗</a
         ><a href="https://github.com/SSHDotCodes/auto/blob/main/SECURITY.md"
           >Security ↗</a
         >

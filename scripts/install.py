@@ -11,7 +11,8 @@ import sys
 import venv
 from pathlib import Path
 
-VERSION = "0.3.0"
+VERSION = "0.4.0"
+AGENTS = ["claude-code", "codex", "gemini", "cursor", "copilot", "pi", "opencode", "hermes"]
 BUILDS = {
     "cpu": ("2.13.0", "https://download.pytorch.org/whl/cpu"),
     "mps": ("2.13.0", None),
@@ -70,12 +71,25 @@ def install_root():
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--agent", choices=["pi", "opencode", "hermes", "all"], default="pi")
+    parser.add_argument(
+        "--agent",
+        choices=["detect", *AGENTS, "all"],
+        default="detect",
+        help="agent to connect (default: every supported agent found on this computer)",
+    )
     parser.add_argument("--backend", choices=["auto", *BUILDS], default="auto")
     parser.add_argument(
         "--model",
-        choices=["auto-0.4b-2", "auto-200m-2", "auto-200m-2-int4", "auto-200m-2-int8"],
-        help="Auto model (default: auto-0.4b-2)",
+        choices=[
+            "auto-0.4b-3",
+            "auto-150m-3",
+            "auto-3b-3",
+            "auto-0.4b-2",
+            "auto-200m-2",
+            "auto-200m-2-int4",
+            "auto-200m-2-int8",
+        ],
+        help="Auto model (default: auto-0.4b-3)",
     )
     parser.add_argument(
         "--source", default=f"https://github.com/SSHDotCodes/auto/archive/refs/tags/v{VERSION}.zip"
@@ -98,7 +112,7 @@ def main():
                     "backend": backend,
                     "torch": BUILDS[backend],
                     "agent": args.agent,
-                    "model": args.model or "auto-0.4b-2",
+                    "model": args.model or "auto-0.4b-3",
                 }
             )
         )
@@ -141,7 +155,7 @@ def main():
     constraint = root / "torch-constraint.txt"
     constraint.write_text("torch==" + version + "\n")
     subprocess.run([*pip, "--constraint", str(constraint), args.source], check=True)
-    command = [str(python), "-m", "auto_gate", "install", args.agent]
+    command = [str(python), "-m", "auto_gate", "install"] + ([] if args.agent == "detect" else [args.agent])
     if args.model:
         command += ["--model", args.model]
     if args.no_start:
@@ -157,7 +171,8 @@ def main():
                 link.unlink()
             link.symlink_to(executable)
     print(
-        f"\nInstalled. Restart {args.agent}. CLI: {executable}\nRun that executable with doctor to see your active backend."
+        f"\nInstalled. Restart your agent{'s' if args.agent in {'detect', 'all'} else ''} to load Auto. CLI: {executable}"
+        "\nRun that executable with doctor to see your active backend."
     )
 
 

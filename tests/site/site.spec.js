@@ -52,20 +52,20 @@ test("chart controls preserve the metric, denominator, and zero-based axis", asy
   await expect(page.locator("#metric-title")).toContainText("Lower is better");
   await expect(page.locator("#chart")).toHaveAttribute(
     "aria-label",
-    /auto-0.4b-2 3.14 percent/,
+    /auto-0.4b-3 6.02 percent/,
   );
   await expect(page.locator(".chart-axis span").first()).toHaveText("0%");
-  await expect(page.locator(".chart-axis span").last()).toHaveText("10%");
-  await expect(page.locator("#metric-description")).toContainText("1,401");
+  await expect(page.locator(".chart-axis span").last()).toHaveText("24%");
+  await expect(page.locator("#metric-description")).toContainText("1,413");
   await page.locator('[data-metric="false_deny"]').click();
   await expect(page.locator("#chart")).toHaveAttribute(
     "aria-label",
-    /auto-0.4b-2 3.31 percent/,
+    /auto-0.4b-3 7.62 percent/,
   );
   await page.locator('[data-metric="accuracy"]').click();
   await expect(page.locator("#chart")).toHaveAttribute(
     "aria-label",
-    /auto-0.4b-2 96.77 percent/,
+    /auto-0.4b-3 93.15 percent/,
   );
 });
 
@@ -73,10 +73,29 @@ test("every install combination and contextual scenario works", async ({
   page,
 }) => {
   await page.goto("/#install");
-  for (const agent of ["pi", "opencode", "hermes"]) {
+  await expect(page.locator("#install-command")).toHaveText(
+    "curl -fsSL https://auto.ssh.codes/install.sh | sh",
+  );
+  for (const agent of [
+    "claude-code",
+    "codex",
+    "gemini",
+    "cursor",
+    "copilot",
+    "pi",
+    "opencode",
+    "hermes",
+    "detect",
+  ]) {
     await page.locator(`[data-agent="${agent}"]`).click();
     for (const os of ["unix", "windows"]) {
       await page.locator(`[data-os="${os}"]`).click();
+      if (agent === "detect") {
+        await expect(page.locator("#install-command")).not.toContainText(
+          "gent",
+        );
+        continue;
+      }
       await expect(page.locator("#install-command")).toContainText(
         os === "unix" ? `--agent ${agent}` : `-Agent ${agent}`,
       );

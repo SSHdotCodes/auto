@@ -3,29 +3,37 @@ const metrics = {
   accuracy: {
     title: "Accuracy",
     direction: "↑ Higher is better",
-    values: [89.633333, 96.6, 96.766667],
+    values: [96.0312, 95.5902, 95.5224, 95.3528, 93.1479, 88.8399, 70.2171],
     max: 100,
     description:
-      "Correct decisions across all 3,000 examples. Auto-0.4b-2 gets 2,903 right.",
+      "Correct decisions across all 2,948 tool calls. auto-0.4b-3 gets 2,746 right; auto-3b-3 gets 2,831.",
   },
   false_approve: {
     title: "False approve",
     direction: "↓ Lower is better",
-    values: [6.067095, 4.1399, 3.140614],
-    max: 10,
+    values: [3.1139, 0.6369, 4.8832, 5.5202, 6.0156, 9.0587, 22.6469],
+    max: 24,
     description:
-      "Deny examples mistakenly approved, out of 1,401. Auto-0.4b-2: 44; auto-1b-bf16: 58; original: 85.",
+      "Harmful calls approved, out of 1,413. auto-3b-3: 44; DeepSeek V4.1 Flash: 9; auto-0.4b-3: 85; auto-0.4b-2: 320.",
   },
   false_deny: {
     title: "False deny",
     direction: "↓ Lower is better",
-    values: [14.133834, 2.75172, 3.314572],
-    max: 20,
+    values: [4.7557, 7.8827, 4.1042, 3.8436, 7.6221, 13.0945, 36.3518],
+    max: 40,
     description:
-      "Approve examples mistakenly denied, out of 1,599. Auto-0.4b-2: 53; auto-1b-bf16: 44; original: 226.",
+      "Authorized calls denied, out of 1,535. auto-3b-3: 73; DeepSeek V4.1 Flash: 121; auto-0.4b-3: 117; auto-0.4b-2: 558.",
   },
 };
-const modelNames = ["auto-0.4b", "auto-1b-bf16", "auto-0.4b-2"];
+const modelNames = [
+  "auto-3b-3",
+  "DeepSeek V4.1 Flash",
+  "Codex auto-review",
+  "GLM-5.3 Flash",
+  "auto-0.4b-3",
+  "auto-150m-3",
+  "auto-0.4b-2",
+];
 function selectButton(button, selector) {
   document.querySelectorAll(selector).forEach((item) => {
     const active = item === button;
@@ -71,14 +79,30 @@ document.querySelectorAll("[data-metric]").forEach((button) =>
       metric.description;
   }),
 );
-let agent = "pi",
+let agent = "detect",
   os = "unix";
-const agents = { pi: "Pi", opencode: "OpenCode", hermes: "Hermes" };
+const agents = {
+  detect: "every agent on this computer",
+  "claude-code": "Claude Code",
+  codex: "Codex CLI",
+  gemini: "Gemini CLI",
+  cursor: "Cursor",
+  copilot: "GitHub Copilot CLI",
+  pi: "Pi",
+  opencode: "OpenCode",
+  hermes: "Hermes",
+};
 function updateInstall() {
-  document.querySelector("#install-command").textContent =
-    os === "windows"
-      ? `& ([scriptblock]::Create((irm https://auto.ssh.codes/install.ps1))) -Agent ${agent}`
-      : `curl -fsSL https://auto.ssh.codes/install.sh | sh -s -- --agent ${agent}`;
+  const windows = os === "windows";
+  const flag =
+    agent === "detect"
+      ? ""
+      : windows
+        ? ` -Agent ${agent}`
+        : ` -s -- --agent ${agent}`;
+  document.querySelector("#install-command").textContent = windows
+    ? `& ([scriptblock]::Create((irm https://auto.ssh.codes/install.ps1)))${flag}`
+    : `curl -fsSL https://auto.ssh.codes/install.sh | sh${flag}`;
   document.querySelector("#install-comment").textContent =
     `# Install Auto for ${agents[agent]}`;
   document.querySelector("#copy-status").textContent = "";

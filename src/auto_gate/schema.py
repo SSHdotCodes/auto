@@ -30,6 +30,7 @@ class Decision(BaseModel):
     device: str | None = None
     model: str | None = None
     revision: str | None = None
+    trimmed: dict | None = None
 
 
 def text(value: Any) -> str:

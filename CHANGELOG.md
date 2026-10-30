@@ -1,5 +1,39 @@
 # Changelog
 
+## 0.4.0
+
+- **More agents, one command.** `auto install` with no name connects every supported agent found on the computer,
+  and the shell/PowerShell installers do the same by default. New hook integrations:
+  - Claude Code (`PreToolUse` in `settings.json`);
+  - Codex CLI (`hooks.json`);
+  - Gemini CLI (`BeforeTool`, with prompt and result recording);
+  - Cursor (`preToolUse`, `failClosed`);
+  - GitHub Copilot CLI (`~/.copilot/hooks/auto.json`).
+
+  They all run through a new `auto hook AGENT` command, so no PyTorch is loaded in the agent's process.
+- **v3 models.** [auto-0.4b-3](https://huggingface.co/ProCreations/auto-0.4b-3) is the new default, with
+  [auto-150m-3](https://huggingface.co/ProCreations/auto-150m-3) (successor to auto-200m-2) and
+  [auto-3b-3](https://huggingface.co/ProCreations/auto-3b-3) for GPUs. On the new v3 benchmark (2,948 held-out tool
+  calls in near-twin pairs) they score 93.1%, 88.8% and 96.0%, up from 70.2%, 69.9% and 72.1% for v2. Existing installations
+  keep their configured model; switch with `auto configure --model auto-0.4b-3` and `auto download`.
+- **auto-3b-3 support.** The runtime also runs decoder classifiers (SmolLM3): BF16, fused causal attention, the
+  last-token head and the same context fitting. `AUTO_MODEL_DIR` loads a local model folder for development.
+- **Frameworks:** `auto_gate.integrations` adds `check()` for custom harnesses, `claude_agent_hook` for the Claude
+  Agent SDK, and `AutoMiddleware()` for LangChain v1 agents.
+- **Long sessions are fitted instead of refused.** Over-budget requests keep:
+  - the call;
+  - the first and latest user messages;
+  - the newest actions;
+  - older user messages;
+  - older actions that share rare identifiers with the call.
+
+  Responses report `trimmed`. On long v3 benchmark items fitted to 8k tokens, auto-0.4b-3 keeps 91.8% accuracy
+  (92.5% with full context; 85.5% when only the newest actions are kept). The fit size is 32,768 tokens on CUDA/ROCm
+  and 8,192 on MPS/CPU, so a hook stays fast before every tool call. Set it with `auto configure --fit-tokens`; turn
+  fitting off with `auto configure --fit-context off`.
+- Hook installs edit only Auto's own entries and back up settings files first; uninstall leaves other hooks intact.
+  A hook registered in Claude Code settings stays silent when Cursor or Copilot CLI run it with their own payloads.
+
 ## 0.3.0
 
 - Add the pinned auto-200m-2-int4 (77 MB) and auto-200m-2-int8 (150 MB) checkpoints to the CLI, shell,
