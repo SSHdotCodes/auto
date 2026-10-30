@@ -7,6 +7,8 @@ export default defineConfig({
   reporter: [["list"], ["html", { open: "never" }]],
   use: {
     baseURL: "http://127.0.0.1:8542",
+    // Keep fragment scrolling and chart transitions still during pointer actions.
+    reducedMotion: "reduce",
     screenshot: "only-on-failure",
     trace: "retain-on-failure",
   },
