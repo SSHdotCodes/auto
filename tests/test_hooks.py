@@ -182,7 +182,7 @@ def test_claude_code_install_keeps_other_settings_and_hooks(tmp_path, monkeypatc
     assert (
         groups[1]["matcher"] == "*" and "-m auto_gate hook claude-code --event PreToolUse --home" in command
     )
-    assert command.endswith("|| exit 2")
+    assert command.endswith("|| exit 2") == (os.name != "nt")  # POSIX shells only
     assert list(root.glob("settings.json.auto-backup-*"))
     assert uninstall_agent("claude-code") == paths
     assert json.loads((root / "settings.json").read_text()) == settings
