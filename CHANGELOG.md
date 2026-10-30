@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.4.0
 
 - **More agents, one command.** `auto install` with no name connects every supported agent found on the computer,
   and the shell/PowerShell installers do the same by default. New hook integrations:

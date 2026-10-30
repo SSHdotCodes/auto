@@ -32,7 +32,7 @@ Prefer reviewing scripts first? Download [install.sh](scripts/install.sh), [inst
 Existing Python environment:
 
 ```sh
-python -m pip install 'auto-local @ git+https://github.com/SSHDotCodes/auto@v0.3.0'
+python -m pip install 'auto-local @ git+https://github.com/SSHDotCodes/auto@v0.4.0'
 auto install                        # every agent found; or: auto install claude-code codex --model auto-150m-3
 ```
 

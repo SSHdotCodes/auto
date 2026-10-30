@@ -11,7 +11,7 @@ import sys
 import venv
 from pathlib import Path
 
-VERSION = "0.3.0"
+VERSION = "0.4.0"
 AGENTS = ["claude-code", "codex", "gemini", "cursor", "copilot", "pi", "opencode", "hermes"]
 BUILDS = {
     "cpu": ("2.13.0", "https://download.pytorch.org/whl/cpu"),
